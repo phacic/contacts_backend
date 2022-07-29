@@ -1,0 +1,1 @@
+from app.core.logger import app_logger

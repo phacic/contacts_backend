@@ -1,0 +1,14 @@
+fastapi[all]==0.78.0
+fastapi-utils==0.2.1
+inflect==5.6.0
+loguru==0.6.0
+pytest==7.1.2
+pytest-cov==3.0.0
+python-dotenv==0.20.0
+pytz==2022.1
+uvicorn[standard]<=0.18.0
+strawberry-graphql[fastapi, debug-server]==0.119.0
+tortoise-orm[asyncpg]==0.19.2
+aerich==0.6.3
+black==22.6.0
+ipython==8.4.0

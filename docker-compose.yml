@@ -1,0 +1,29 @@
+version: "3"
+
+networks:
+  backend:
+    driver: "bridge"
+
+services:
+  db:
+    image: postgres:14
+    environment:
+      - POSTGRES_USER="${DB_USER}"
+      - POSTGRES_PASSWORD="${DB_PASSWORD}"
+      - POSTGRES_DB="${DB_NAME}"
+    networks:
+      - backend
+    expose:
+      - "5432"
+
+  web:
+    build: .
+    command: sh -c "uvicorn app.main:app --host 0.0.0.0 --port 7770 --reload --log-level debug"
+    volumes:
+      - .:/code
+    ports:
+      - "7770:7770"
+    depends_on:
+      - db
+    networks:
+      - backend
