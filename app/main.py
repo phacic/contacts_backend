@@ -8,6 +8,7 @@ from strawberry.fastapi import GraphQLRouter
 from app.core.tortoise import orm_config
 from app.utils.logger import app_logger
 from app.graphql.schema import Query
+from app.api import (contact_router)
 
 app = FastAPI(title="Contacts App", description="A contacts app with both REST and GraphQL endpoints.")
 
@@ -15,6 +16,9 @@ app = FastAPI(title="Contacts App", description="A contacts app with both REST a
 # strawberry graphql router
 graphql_schema = Schema(query=Query)
 app.include_router(router=GraphQLRouter(schema=graphql_schema, graphiql=True, debug=True), prefix="/graphql")
+
+# app routers
+app.include_router(router=contact_router, prefix="/contact")
 
 # middleware
 origins = [

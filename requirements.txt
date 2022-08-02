@@ -8,7 +8,7 @@ python-dotenv==0.20.0
 pytz==2022.1
 uvicorn[standard]<=0.18.0
 strawberry-graphql[fastapi, debug-server]==0.119.0
-tortoise-orm[asyncpg]==0.19.2
+tortoise-orm[asyncpg, accel]==0.19.2
 aerich==0.6.3
 black==22.6.0
 ipython==8.4.0

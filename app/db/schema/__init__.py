@@ -1,3 +1,8 @@
-from app.db.schema.contact_schema import ContactSchema, ContactCreateSchema
-from app.db.schema.user_schema import UserSchema, UserCreateSchema
+from app.db.schema.contact import (
+    ContactCreateSchema, ContactSchema,
+    ContactTag, ContactTagCreateSchema,
+    EmailSchema, EmailCreateSchema,
+    PhoneSchema, PhoneCreateSchema
+)  # noqa
+from app.db.schema.user import UserSchema, UserCreateSchema
 
