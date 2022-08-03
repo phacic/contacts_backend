@@ -11,7 +11,9 @@ router = APIRouter(tags=["Contact"])
 
 @router.get(path="/", response_model=List[ContactSchema])
 async def all_contacts():
-    return await ContactSchema.from_queryset(Contact.all())
+    return await ContactSchema.from_queryset(
+        Contact.all().prefetch_related("phones", "emails", "significant_dates", "addresses")
+    )
     # return []
 
 
