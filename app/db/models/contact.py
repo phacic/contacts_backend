@@ -3,23 +3,21 @@ from typing import List, Optional, Dict
 from tortoise import fields, models
 
 from app.db.models.base import BaseModel, LabelMixin
-from app.db.models.constant import ModelRelations
+from app.db.models.constant import ModelRelations, StatusOptions
 
 
 class Contact(BaseModel):
     """
     contact model for a person contact
     """
-    user = fields.ForeignKeyField(ModelRelations.User.value, related_name="contacts")
     first_name = fields.CharField(max_length=60, null=True)
     middle_name = fields.CharField(max_length=60, null=True)
     last_name = fields.CharField(max_length=60, null=True)
     company = fields.CharField(max_length=120, null=True)
-    address = fields.TextField(null=True)
     note = fields.TextField(null=True)
     website = fields.CharField(max_length=120, null=True)
-    spouse = fields.CharField(max_length=120)
-    nickname = fields.CharField(max_length=60)
+    spouse = fields.CharField(max_length=120, null=True)
+    nickname = fields.CharField(max_length=60, null=True)
     # mark as favorite
     is_favorite = fields.BooleanField(default=False)
     # mark as hidden
@@ -27,7 +25,7 @@ class Contact(BaseModel):
     # active, inactive (moved to recycle)
     # if set to inactive, no further changes will be allowed, so we can safely
     # use updated_at to check the date status change happened (to inactive)
-    status = fields.CharField(max_length=2)
+    status = fields.CharField(max_length=2, default=StatusOptions.Active.value)
     tags = fields.ManyToManyField(model_name=ModelRelations.Tags.value, related_name="tags")
 
     # improve hinting

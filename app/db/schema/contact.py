@@ -1,6 +1,6 @@
-from typing import List, Optional, Union
-from pydantic import EmailStr
+from typing import List, Union, Dict
 
+from pydantic import EmailStr, root_validator
 from tortoise.contrib.pydantic import pydantic_model_creator
 
 from app.db.models.contact import (
@@ -29,18 +29,30 @@ SignificantDateCreateSchema = pydantic_model_creator(SignificantDate, name="Sign
                                                      exclude_readonly=True)
 
 ContactDefaultSchema = pydantic_model_creator(Contact, name="Contact")
-ContactCreateDefaultSchema = pydantic_model_creator(Contact, name="ContactCreate", exclude_readonly=True)
+ContactCreateDefaultSchema = pydantic_model_creator(Contact, name="ContactCreate", exclude_readonly=True,
+                                                    exclude=('status',))
 
 
 class ContactSchema(ContactDefaultSchema):
-    phones: Union[None, List[PhoneSchema]]
+    phones: List[PhoneSchema]
     emails: List[EmailSchema]
     addresses: List[AddressSchema]
     significant_dates: List[SignificantDateSchema]
 
 
 class ContactCreateSchema(ContactCreateDefaultSchema):
-    phones: List[PhoneCreateSchema]
-    emails: List[EmailCreateSchema]
-    addresses: List[AddressCreateSchema]
-    significant_dates: List[SignificantDateCreateSchema]
+    phones: Union[None, List[PhoneCreateSchema]] = []
+    emails: Union[None, List[EmailCreateSchema]] = []
+    addresses: Union[None, List[AddressCreateSchema]] = []
+    significant_dates: Union[None, List[SignificantDateCreateSchema]] = []
+
+    @root_validator
+    def check_firstname_phones(cls, values: Dict):
+        """
+        should at least have a phone number or a name
+        """
+        first_name, phones = values.get('first_name'), values.get("phones")
+        if not any([first_name, phones]):
+            raise ValueError("contact should either have a phone number or first name associated")
+
+        return values

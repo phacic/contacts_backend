@@ -9,47 +9,46 @@ from app.db.schema import (
 )
 
 
-async def create_contact(data: ContactCreateSchema) -> ContactSchema:
+async def create_new_contact(data: Dict) -> Contact:
     """
     save a new contact
     """
-    data_dict = data.dict(exclude_unset=True)
-    phones = data_dict.pop("phones", [])
-    emails = data_dict.pop("emails", [])
-    dates = data_dict.pop("significant_dates", [])
+    phones = data.pop("phones", [])
+    emails = data.pop("emails", [])
+    dates = data.pop("significant_dates", [])
 
     # use transaction to save the pieces
     async with in_transaction():
         # create contact
-        contact_obj = await Contact.create(**data_dict)
+        contact_obj = await Contact.create(**data)
 
         # the other pieces
-        await create_phones(phones)
-        await create_emails(emails)
-        await create_sig_dates(dates)
+        await create_phones(contact_obj, phones)
+        await create_emails(contact_obj, emails)
+        await create_sig_dates(contact_obj, dates)
 
-        return ContactSchema.from_tortoise_orm(contact_obj)
+        return contact_obj
 
 
-async def create_phones(phones_data: List[Dict]) -> Any:
+async def create_phones(c: Contact, phones_data: List[Dict]) -> Any:
     """ """
-    phone_list = [Phone(**p) for p in phones_data]
+    phone_list = [Phone(contact=c, **p) for p in phones_data]
     return await Phone.bulk_create(phone_list)
 
 
-async def create_emails(emails_data: List[Dict]) -> Any:
+async def create_emails(c: Contact, emails_data: List[Dict]) -> Any:
     """ """
-    email_list = [Email(**e) for e in emails_data]
+    email_list = [Email(contact=c, **e) for e in emails_data]
     return await Email.bulk_create(email_list)
 
 
-async def create_sig_dates(sig_data: List[Dict]) -> Any:
+async def create_sig_dates(c: Contact, sig_data: List[Dict]) -> Any:
     """ """
-    sig_list = [SignificantDate(**s) for s in sig_data]
+    sig_list = [SignificantDate(contact=c, **s) for s in sig_data]
     return await SignificantDate.bulk_create(sig_list)
 
 
-async def create_addresses(addresses_data: List[Dict]) -> Any:
+async def create_addresses(c: Contact, addresses_data: List[Dict]) -> Any:
     """"""
-    address_list = [Address(**a) for a in addresses_data]
+    address_list = [Address(contact=c, **a) for a in addresses_data]
     return await Address.bulk_create(address_list)

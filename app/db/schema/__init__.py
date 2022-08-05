@@ -4,5 +4,4 @@ from app.db.schema.contact import (
     EmailSchema, EmailCreateSchema,
     PhoneSchema, PhoneCreateSchema
 )  # noqa
-from app.db.schema.user import UserSchema, UserCreateSchema
 

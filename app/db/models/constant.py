@@ -6,8 +6,15 @@ class ModelRelations(str, Enum):
     model relations
     """
     Contact = 'models.Contact'
-    User = 'models.User'
     Tags = 'models.ContactTag'
+
+
+class StatusOptions(str, Enum):
+    """
+
+    """
+    Active = "A"
+    Inactive = "I"
 
 
 # class BaseLabelOptions(str, Enum):
