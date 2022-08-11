@@ -1,5 +1,7 @@
 fastapi[all]==0.78.0
 fastapi-utils==0.2.1
+fastapi-users[beanie,oauth]==10.1
+fastapi-users-tortoise==0.2.0
 inflect==5.6.0
 loguru==0.6.0
 pytest==7.1.2

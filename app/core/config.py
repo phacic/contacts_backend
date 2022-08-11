@@ -6,8 +6,10 @@ from pydantic import BaseSettings, PostgresDsn, validator, BaseConfig
 class Settings(BaseSettings):
     API_VERSION = "v1"
 
+    SECRET: Optional[str] = None
+
     # docker host ip
-    HOST_IP = 'host.docker.internal'
+    HOST_IP: Optional[str] = None
 
     # DATABASE
     DB_USER: Optional[str] = None

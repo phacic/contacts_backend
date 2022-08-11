@@ -34,6 +34,7 @@ ContactCreateDefaultSchema = pydantic_model_creator(Contact, name="ContactCreate
 
 
 class ContactSchema(ContactDefaultSchema):
+    user_id: Union[None, int] = None
     phones: List[PhoneSchema]
     emails: List[EmailSchema]
     addresses: List[AddressSchema]

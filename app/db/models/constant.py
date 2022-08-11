@@ -6,7 +6,8 @@ class ModelRelations(str, Enum):
     model relations
     """
     Contact = 'models.Contact'
-    Tags = 'models.ContactTag'
+    Tag = 'models.ContactTag'
+    User = 'models.User'
 
 
 class StatusOptions(str, Enum):

@@ -3,5 +3,8 @@ from app.db.schema.contact import (
     ContactTag, ContactTagCreateSchema,
     EmailSchema, EmailCreateSchema,
     PhoneSchema, PhoneCreateSchema
-)  # noqa
+)
 
+from app.db.schema.user import (
+    UserSchema, UserCreateSchema, UserUpdateSchema
+)

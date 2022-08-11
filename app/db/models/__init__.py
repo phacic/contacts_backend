@@ -3,3 +3,5 @@
 from app.db.models.contact import (
     Contact, ContactTag, Email, Phone, SignificantDate, Address
 )
+
+from app.db.models.user import User

@@ -27,28 +27,32 @@ async def create_new_contact(data: Dict) -> Contact:
         await create_emails(contact_obj, emails)
         await create_sig_dates(contact_obj, dates)
 
-        return contact_obj
+        return await contact_obj
 
 
 async def create_phones(c: Contact, phones_data: List[Dict]) -> Any:
     """ """
-    phone_list = [Phone(contact=c, **p) for p in phones_data]
-    return await Phone.bulk_create(phone_list)
+    if phones_data:
+        phone_list = [Phone(contact=c, **p) for p in phones_data]
+        return await Phone.bulk_create(phone_list)
 
 
 async def create_emails(c: Contact, emails_data: List[Dict]) -> Any:
     """ """
-    email_list = [Email(contact=c, **e) for e in emails_data]
-    return await Email.bulk_create(email_list)
+    if emails_data:
+        email_list = [Email(contact=c, **e) for e in emails_data]
+        return await Email.bulk_create(email_list)
 
 
 async def create_sig_dates(c: Contact, sig_data: List[Dict]) -> Any:
     """ """
-    sig_list = [SignificantDate(contact=c, **s) for s in sig_data]
-    return await SignificantDate.bulk_create(sig_list)
+    if sig_data:
+        sig_list = [SignificantDate(contact=c, **s) for s in sig_data]
+        return await SignificantDate.bulk_create(sig_list)
 
 
 async def create_addresses(c: Contact, addresses_data: List[Dict]) -> Any:
     """"""
-    address_list = [Address(contact=c, **a) for a in addresses_data]
-    return await Address.bulk_create(address_list)
+    if addresses_data:
+        address_list = [Address(contact=c, **a) for a in addresses_data]
+        return await Address.bulk_create(address_list)

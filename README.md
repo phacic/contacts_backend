@@ -4,7 +4,7 @@ REST GraphQL backend for contacts app.
 
 ## Models
 
-# Migration
+## Migration
 
 Create migration files
 

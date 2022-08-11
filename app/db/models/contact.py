@@ -1,6 +1,9 @@
 from typing import List, Optional, Dict
 
 from tortoise import fields, models
+from fastapi_users.db.base import BaseUserDatabase
+from fastapi_users.db import ObjectIDIDMixin
+from fastapi_users_tortoise import TortoiseUserDatabase, TortoiseBaseUserAccountModel
 
 from app.db.models.base import BaseModel, LabelMixin
 from app.db.models.constant import ModelRelations, StatusOptions
@@ -26,7 +29,10 @@ class Contact(BaseModel):
     # if set to inactive, no further changes will be allowed, so we can safely
     # use updated_at to check the date status change happened (to inactive)
     status = fields.CharField(max_length=2, default=StatusOptions.Active.value)
-    tags = fields.ManyToManyField(model_name=ModelRelations.Tags.value, related_name="tags")
+    tags = fields.ManyToManyField(model_name=ModelRelations.Tag.value, related_name="tags")
+
+    # owner
+    user = fields.ForeignKeyField(model_name=ModelRelations.User.value, related_name="contacts", null=True)
 
     # improve hinting
     phones: fields.ReverseRelation["Phone"]
