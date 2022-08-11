@@ -16,14 +16,15 @@ from app.graphql.schema import Query
 
 app = FastAPI(title="Contacts App", description="A contacts app with both REST and GraphQL endpoints.")
 
-fastapi_user = FastAPIUsers[User, int](get_user_manager=get_user_manager,  auth_backends=[jwt_auth_backend])
+fastapi_user = FastAPIUsers[User, int](get_user_manager=get_user_manager, auth_backends=[jwt_auth_backend])
 
 # routers
-# app.include_router(router=fastapi_user.get_auth_router(jwt_auth_backend))
+app.include_router(router=fastapi_user.get_auth_router(jwt_auth_backend), tags=['auth-jwt'])
 app.include_router(router=contact_router, prefix="/contact")
 # graphql router
 graphql_schema = Schema(query=Query)
-app.include_router(router=GraphQLRouter(schema=graphql_schema, graphiql=True, debug=True), prefix="/graphql")
+app.include_router(router=GraphQLRouter(schema=graphql_schema, graphiql=True, debug=True), prefix="/graphql",
+                   tags=['graphQL'])
 
 # middleware
 origins = [

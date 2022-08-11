@@ -13,10 +13,10 @@ async def get_user_db():
     """
     dependency for user_db
     """
-    yield TortoiseUserDatabase[User]
+    yield TortoiseUserDatabase[User, int]
 
 
-class UserManager(IntegerIDMixin, BaseUserManager[User]):
+class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
     reset_password_token_secret = settings.SECRET
     verification_token_secret = settings.SECRET
 

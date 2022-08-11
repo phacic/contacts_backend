@@ -1,25 +1,24 @@
 from typing import Union
 from datetime import datetime
-from tortoise.contrib.pydantic import pydantic_model_creator
-from fastapi_users.schemas import BaseUser, BaseUserUpdate, BaseUserCreate
+
+from fastapi_users import schemas
 from pydantic import EmailStr
 
-from app.db.models.user import User
 
-UserSchema = pydantic_model_creator(User, name="User")
+class UserSchema(schemas.BaseUser):
+    status: str
+    date_joined: datetime
+    updated_at: datetime
 
-UserDefaultCreateSchema = pydantic_model_creator(User, name="UserCreate", exclude_readonly=True)
 
-
-class UserCreateSchema(UserDefaultCreateSchema):
+class UserCreateSchema(schemas.BaseUserCreate):
     email: EmailStr
     password: str
 
 
-class UserUpdateSchema(UserDefaultCreateSchema):
+class UserUpdateSchema(schemas.BaseUserUpdate):
     email: Union[None, EmailStr]
     password: Union[None, str]
     is_active: Union[None, bool]
     is_superuser: Union[None, bool]
     is_verified: Union[None, bool]
-
