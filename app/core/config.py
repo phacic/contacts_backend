@@ -1,6 +1,6 @@
-from typing import Union, Any, Dict, Optional
+from typing import Any, Dict, Optional
 
-from pydantic import BaseSettings, PostgresDsn, validator, BaseConfig
+from pydantic import BaseConfig, BaseSettings, PostgresDsn, validator
 
 
 class Settings(BaseSettings):
@@ -21,7 +21,7 @@ class Settings(BaseSettings):
 
     @validator("DB_URL", pre=True)
     def build_db_url(cls, current_value: Optional[Any], values: Dict) -> Any:
-        """ build postgres connection string """
+        """build postgres connection string"""
         if isinstance(current_value, str):
             return current_value
 
@@ -30,7 +30,7 @@ class Settings(BaseSettings):
             host=values.get("DB_HOST"),
             user=values.get("DB_USER"),
             password=values.get("DB_PASSWORD"),
-            path="/" + values.get("DB_NAME", "")
+            path="/" + values.get("DB_NAME", ""),
         )
 
     class Config(BaseConfig):

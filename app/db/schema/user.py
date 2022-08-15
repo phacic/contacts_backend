@@ -1,5 +1,5 @@
-from typing import Union
 from datetime import datetime
+from typing import Union
 
 from fastapi_users import schemas
 from pydantic import EmailStr
@@ -12,6 +12,7 @@ class UserSchema(schemas.BaseUser):
 
 
 class UserCreateSchema(schemas.BaseUserCreate):
+    full_name: str
     email: EmailStr
     password: str
 

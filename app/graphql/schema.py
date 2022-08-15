@@ -1,4 +1,5 @@
 from typing import List
+
 import strawberry
 
 from app.graphql.resolvers import get_contacts

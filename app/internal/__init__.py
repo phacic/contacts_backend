@@ -1,1 +1,1 @@
-from app.internal.security import jwt_auth_backend
+from app.internal.security import jwt_auth_backend  # noqa

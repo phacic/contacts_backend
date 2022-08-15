@@ -1,12 +1,8 @@
-from typing import Dict, Optional, Any, List
+from typing import Any, Dict, List
+
 from tortoise.models import in_transaction
 
-from app.db.models import (
-    Contact, Phone, Email, SignificantDate, Address
-)
-from app.db.schema import (
-    ContactCreateSchema, ContactSchema, PhoneSchema, PhoneCreateSchema
-)
+from app.db.models import Address, Contact, Email, Phone, SignificantDate
 
 
 async def create_new_contact(data: Dict) -> Contact:

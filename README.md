@@ -1,3 +1,5 @@
+[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
+
 # Contacts Backend
 
 Based on Google Contacts app on Android, this is supposed to the backend that supports such app. Supports both REST and GraphQL endpoints.

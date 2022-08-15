@@ -1,18 +1,19 @@
 from typing import List
+
 from fastapi import APIRouter
 
-from app.db.models import Contact
 from app.db.crud import create_new_contact
-from app.db.schema import (
-    ContactCreateSchema, ContactSchema
-)
+from app.db.models import Contact
+from app.db.schema import ContactCreateSchema, ContactSchema
 
 router = APIRouter(tags=["Contact"])
 
 
 @router.get(path="/", response_model=List[ContactSchema])
 async def all_contacts():
-    qs = Contact.all().prefetch_related("phones", "emails", "significant_dates", "addresses")
+    qs = Contact.all().prefetch_related(
+        "phones", "emails", "significant_dates", "addresses"
+    )
     return await ContactSchema.from_queryset(qs)
 
 

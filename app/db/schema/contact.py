@@ -1,23 +1,36 @@
-from typing import List, Union, Dict
+from typing import Dict, List, Union
 
 from pydantic import EmailStr, root_validator
 from tortoise.contrib.pydantic import pydantic_model_creator
 
 from app.db.models.contact import (
-    Contact, ContactTag, Phone, Email, SignificantDate, Address
+    Address,
+    Contact,
+    ContactTag,
+    Email,
+    Phone,
+    SignificantDate,
 )
 
 ContactTagSchema = pydantic_model_creator(ContactTag, name="ContactTag")
-ContactTagCreateSchema = pydantic_model_creator(ContactTag, name="ContactTagCreate", exclude_readonly=True)
+ContactTagCreateSchema = pydantic_model_creator(
+    ContactTag, name="ContactTagCreate", exclude_readonly=True
+)
 
 AddressSchema = pydantic_model_creator(Address, name="Address")
-AddressCreateSchema = pydantic_model_creator(Address, name="AddressCreateSchema", exclude_readonly=True)
+AddressCreateSchema = pydantic_model_creator(
+    Address, name="AddressCreateSchema", exclude_readonly=True
+)
 
 PhoneSchema = pydantic_model_creator(Phone, name="Phone")
-PhoneCreateSchema = pydantic_model_creator(Phone, name="PhoneCreate", exclude_readonly=True)
+PhoneCreateSchema = pydantic_model_creator(
+    Phone, name="PhoneCreate", exclude_readonly=True
+)
 
 EmailSchema = pydantic_model_creator(Email, name="Email")
-EmailCreateDefaultSchema = pydantic_model_creator(Email, name="EmailCreate", exclude_readonly=True)
+EmailCreateDefaultSchema = pydantic_model_creator(
+    Email, name="EmailCreate", exclude_readonly=True
+)
 
 
 class EmailCreateSchema(EmailCreateDefaultSchema):
@@ -25,12 +38,14 @@ class EmailCreateSchema(EmailCreateDefaultSchema):
 
 
 SignificantDateSchema = pydantic_model_creator(SignificantDate, name="SignificantDate")
-SignificantDateCreateSchema = pydantic_model_creator(SignificantDate, name="SignificantDateCreateSchema",
-                                                     exclude_readonly=True)
+SignificantDateCreateSchema = pydantic_model_creator(
+    SignificantDate, name="SignificantDateCreateSchema", exclude_readonly=True
+)
 
 ContactDefaultSchema = pydantic_model_creator(Contact, name="Contact")
-ContactCreateDefaultSchema = pydantic_model_creator(Contact, name="ContactCreate", exclude_readonly=True,
-                                                    exclude=('status',))
+ContactCreateDefaultSchema = pydantic_model_creator(
+    Contact, name="ContactCreate", exclude_readonly=True, exclude=("status",)
+)
 
 
 class ContactSchema(ContactDefaultSchema):
@@ -52,8 +67,10 @@ class ContactCreateSchema(ContactCreateDefaultSchema):
         """
         should at least have a phone number or a name
         """
-        first_name, phones = values.get('first_name'), values.get("phones")
+        first_name, phones = values.get("first_name"), values.get("phones")
         if not any([first_name, phones]):
-            raise ValueError("contact should either have a phone number or first name associated")
+            raise ValueError(
+                "contact should either have a phone number or first name associated"
+            )
 
         return values

@@ -1,5 +1,9 @@
-from fastapi_users.authentication import AuthenticationBackend, BearerTransport, JWTStrategy
 from fastapi_users import BaseUserManager  # noqa
+from fastapi_users.authentication import (
+    AuthenticationBackend,
+    BearerTransport,
+    JWTStrategy,
+)
 
 from app.core.config import settings
 
@@ -11,7 +15,5 @@ def get_jwt_strategy() -> JWTStrategy:
 
 
 jwt_auth_backend = AuthenticationBackend(
-    name='jwt',
-    transport=bearer_transport,
-    get_strategy=get_jwt_strategy
+    name="jwt", transport=bearer_transport, get_strategy=get_jwt_strategy
 )
