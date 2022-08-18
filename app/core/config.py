@@ -4,7 +4,8 @@ from pydantic import BaseConfig, BaseSettings, PostgresDsn, validator
 
 
 class Settings(BaseSettings):
-    API_VERSION = "v1"
+    API: str = "/api"
+    GRAPH_QL: str = "/graphql"
 
     SECRET: Optional[str] = None
 

@@ -2,16 +2,15 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi_users import FastAPIUsers
-from strawberry import Schema
-from strawberry.fastapi import GraphQLRouter
 from tortoise.contrib.fastapi import register_tortoise
 
-from app.api import contact_router
+from app.api import v1_router as api_v1_router
+from app.graphql import v1_router as graphql_v1_router
 from app.api.deps import get_user_manager
 from app.core.tortoise import orm_config
+from app.core.config import settings
 from app.db.models import User
 from app.db.schema import UserCreateSchema, UserSchema
-from app.graphql.schema import Query
 from app.internal import jwt_auth_backend
 from app.utils.logger import app_logger
 
@@ -34,14 +33,8 @@ app.include_router(
     ),
     tags=["auth-jwt"],
 )
-app.include_router(router=contact_router, prefix="/contact")
-# graphql router
-graphql_schema = Schema(query=Query)
-app.include_router(
-    router=GraphQLRouter(schema=graphql_schema, graphiql=True, debug=True),
-    prefix="/graphql",
-    tags=["graphQL"],
-)
+app.include_router(router=api_v1_router, prefix=settings.API, tags=[f"{settings.API}"])
+app.include_router(router=graphql_v1_router, prefix=settings.GRAPH_QL, tags=[f"{settings.GRAPH_QL}"])
 
 # middleware
 origins = [

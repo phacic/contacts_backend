@@ -6,7 +6,7 @@ from app.db.crud import create_new_contact
 from app.db.models import Contact
 from app.db.schema import ContactCreateSchema, ContactSchema
 
-router = APIRouter(tags=["Contact"])
+router = APIRouter()
 
 
 @router.get(path="/", response_model=List[ContactSchema])
