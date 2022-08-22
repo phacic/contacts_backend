@@ -6,10 +6,9 @@ from tortoise.contrib.fastapi import register_tortoise
 
 from app.api import v1_router as api_v1_router
 from app.graphql import v1_router as graphql_v1_router
-from app.api.deps import get_user_manager
+from app.api.deps import fastapi_user
 from app.core.tortoise import orm_config
 from app.core.config import settings
-from app.db.models import User
 from app.db.schema import UserCreateSchema, UserSchema
 from app.internal import jwt_auth_backend
 from app.utils.logger import app_logger
@@ -17,10 +16,6 @@ from app.utils.logger import app_logger
 app = FastAPI(
     title="Contacts App",
     description="A contacts app with both REST and GraphQL endpoints.",
-)
-
-fastapi_user = FastAPIUsers[User, int](
-    get_user_manager=get_user_manager, auth_backends=[jwt_auth_backend]
 )
 
 # routers

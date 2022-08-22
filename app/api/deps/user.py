@@ -1,12 +1,13 @@
 from typing import Optional, Union
 
 from fastapi import Depends, Request
-from fastapi_users import BaseUserManager, IntegerIDMixin, InvalidPasswordException
+from fastapi_users import BaseUserManager, IntegerIDMixin, InvalidPasswordException, FastAPIUsers
 from fastapi_users_tortoise import TortoiseUserDatabase
 
 from app.core.config import settings
 from app.db.models import User
 from app.db.schema import UserCreateSchema
+from app.internal import jwt_auth_backend
 from app.utils.logger import app_logger
 
 
@@ -50,3 +51,13 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
 
 async def get_user_manager(user_db=Depends(get_user_db)):
     yield UserManager(user_db=user_db)
+
+
+# main component that ties together the various aspect of the authentication
+fastapi_user = FastAPIUsers[User, int](
+    get_user_manager=get_user_manager, auth_backends=[jwt_auth_backend]
+)
+
+# current user dependency to inject authenticated user into route
+current_user = fastapi_user.current_user()
+current_active_user = fastapi_user.current_user(active=True)

@@ -3,6 +3,7 @@ from typing import Union
 from fastapi import Query
 
 from app.api.deps.user import get_user_manager  # noqa
+from app.api.deps.user import current_user, fastapi_user  # noqa
 
 
 class PaginateQueryParams:
