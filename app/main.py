@@ -25,13 +25,12 @@ fastapi_user = FastAPIUsers[User, int](
 
 # routers
 app.include_router(
-    router=fastapi_user.get_auth_router(jwt_auth_backend), tags=["auth-jwt"]
+    router=fastapi_user.get_auth_router(jwt_auth_backend), tags=["auth-jwt"], prefix="/auth"
 )
 app.include_router(
     router=fastapi_user.get_register_router(
         user_schema=UserSchema, user_create_schema=UserCreateSchema
-    ),
-    tags=["auth-jwt"],
+    ), tags=["auth-jwt"], prefix="/auth"
 )
 app.include_router(router=api_v1_router, prefix=settings.API, tags=[f"{settings.API}"])
 app.include_router(router=graphql_v1_router, prefix=settings.GRAPH_QL, tags=[f"{settings.GRAPH_QL}"])

@@ -10,11 +10,18 @@ from app.db.schema import UserCreateSchema
 from app.utils.logger import app_logger
 
 
+class UserDb(TortoiseUserDatabase[User, int]):
+
+    def __init__(self, *args, **kwargs):
+        super(UserDb, self).__init__(User, None)
+
+
 async def get_user_db():
     """
     dependency for user_db
     """
-    yield TortoiseUserDatabase[User, int]
+    # yield UserDb()
+    yield TortoiseUserDatabase(User)
 
 
 class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
@@ -24,6 +31,7 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
     async def validate_password(
         self, password: str, user: Union[UserCreateSchema, User]
     ) -> None:
+        print(self.user_db.__dict__)
         if len(password) < 6:
             raise InvalidPasswordException(
                 reason="Password should be at least 6 characters long."

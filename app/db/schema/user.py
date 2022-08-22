@@ -11,7 +11,14 @@ class UserSchema(schemas.BaseUser):
     updated_at: datetime
 
 
-class UserCreateSchema(schemas.BaseUserCreate):
+class UserCreateSchema(schemas.CreateUpdateDictModel):
+    """
+    Schema for registering a member. Did not inherit from schemas. BaseUserCreate
+    because we do not want to include the following in the schema
+        is_active: Optional[bool]
+        is_superuser: Optional[bool]
+        is_verified: Optional[bool]
+    """
     full_name: str
     email: EmailStr
     password: str
