@@ -1,8 +1,9 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from tortoise.models import in_transaction
 
 from app.db.models import Address, Contact, Email, Phone, SignificantDate
+from app.db.schema import ContactSchema
 
 
 async def create_new_contact(data: Dict) -> Contact:
@@ -52,3 +53,13 @@ async def create_addresses(c: Contact, addresses_data: List[Dict]) -> Any:
     if addresses_data:
         address_list = [Address(contact=c, **a) for a in addresses_data]
         return await Address.bulk_create(address_list)
+
+
+async def get_user_contacts(user_id: Optional[int] = None) -> List[Contact]:
+    """
+    contacts created by a user
+    """
+    qs = Contact.filter(user_id=user_id).prefetch_related(
+        "phones", "emails", "significant_dates", "addresses"
+    )
+    return await ContactSchema.from_queryset(qs)

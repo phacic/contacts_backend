@@ -24,6 +24,8 @@ class Contact(BaseModel):
     # active, inactive (moved to recycle)
     # if set to inactive, no further changes will be allowed, so we can safely
     # use updated_at to check the date status change happened (to inactive)
+    # when will be useful to permanently delete a contact that has been marked
+    # inactive over a period of time
     status = fields.CharField(max_length=2, default=StatusOptions.Active.value)
     tags = fields.ManyToManyField(
         model_name=ModelRelations.Tag.value, related_name="tags"
