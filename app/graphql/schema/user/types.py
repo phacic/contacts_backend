@@ -1,4 +1,8 @@
+from typing import Union
+
 import strawberry
+
+from app.graphql.schema.base import Error
 
 
 @strawberry.input
@@ -10,4 +14,18 @@ class RegisterInput:
 
 @strawberry.type
 class RegisterOutput:
-    token: str
+    access_token: str
+
+
+@strawberry.input
+class LoginInput:
+    username: str
+    password: str
+
+
+@strawberry.type
+class LoginOutput:
+    success: bool
+    access_token: Union[None, str]
+    token_type: Union[None, str]
+    error: Union[None, Error]

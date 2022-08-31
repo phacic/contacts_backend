@@ -24,3 +24,30 @@ Create migration files
 Upgrade/downgrade from migration database
 
     docker-compose run --rm web aerich upgrade/downgrade
+
+
+## GraphQL
+
+### Login
+
+```
+mutation ($input: LoginInput!) {
+  login(inputData: $input) {
+    success
+    accessToken
+    tokenType
+    error {
+      errText
+      code
+      description
+    }
+  }
+
+=======
+{
+  "input": {
+    "username": "kofi@example.com",
+    "password": "examples"
+  }
+}
+```

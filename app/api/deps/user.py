@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Optional, Union, Generator, AsyncGenerator
 
 from fastapi import Depends, Request
 from fastapi_users import BaseUserManager, IntegerIDMixin, InvalidPasswordException, FastAPIUsers
@@ -49,7 +49,14 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
         app_logger.info("on after register")
 
 
-async def get_user_manager(user_db=Depends(get_user_db)):
+# default user manager
+user_manager = UserManager(user_db=TortoiseUserDatabase(User))
+
+
+async def get_user_manager(user_db=Depends(get_user_db)) -> AsyncGenerator[UserManager, None]:
+    """
+    user manager for dependency injection
+    """
     yield UserManager(user_db=user_db)
 
 
