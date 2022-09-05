@@ -19,6 +19,7 @@ class UserCreateSchema(schemas.CreateUpdateDictModel):
         is_superuser: Optional[bool]
         is_verified: Optional[bool]
     """
+
     full_name: str
     email: EmailStr
     password: str

@@ -5,11 +5,11 @@ from fastapi_users import FastAPIUsers
 from tortoise.contrib.fastapi import register_tortoise
 
 from app.api import v1_router as api_v1_router
-from app.graphql import v1_router as graphql_v1_router
 from app.api.deps import fastapi_user
-from app.core.tortoise import orm_config
 from app.core.config import settings
+from app.core.tortoise import orm_config
 from app.db.schema import UserCreateSchema, UserSchema
+from app.graphql import v1_router as graphql_v1_router
 from app.internal import jwt_auth_backend
 from app.utils.logger import app_logger
 
@@ -20,15 +20,21 @@ app = FastAPI(
 
 # routers
 app.include_router(
-    router=fastapi_user.get_auth_router(jwt_auth_backend), tags=["auth-jwt"], prefix="/auth"
+    router=fastapi_user.get_auth_router(jwt_auth_backend),
+    tags=["auth-jwt"],
+    prefix="/auth",
 )
 app.include_router(
     router=fastapi_user.get_register_router(
         user_schema=UserSchema, user_create_schema=UserCreateSchema
-    ), tags=["auth-jwt"], prefix="/auth"
+    ),
+    tags=["auth-jwt"],
+    prefix="/auth",
 )
 app.include_router(router=api_v1_router, prefix=settings.API, tags=[f"{settings.API}"])
-app.include_router(router=graphql_v1_router, prefix=settings.GRAPH_QL, tags=[f"{settings.GRAPH_QL}"])
+app.include_router(
+    router=graphql_v1_router, prefix=settings.GRAPH_QL, tags=[f"{settings.GRAPH_QL}"]
+)
 
 # middleware
 origins = [

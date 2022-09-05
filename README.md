@@ -13,7 +13,7 @@ The server should be running on `http://localhost:7770`.
 
 Open API docs on `http://localhost:7770/docs`
 
-GraphQL on `http://localhost:7770/graphql`
+GraphQL on `http://localhost:7770/graphql/v1`
 
 ## Models and Migration
 
@@ -27,6 +27,8 @@ Upgrade/downgrade from migration database
 
 
 ## GraphQL
+
+### Register
 
 ### Login
 

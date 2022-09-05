@@ -2,6 +2,7 @@ from tortoise import fields
 
 from app.db.models.base import BaseModel, LabelMixin
 from app.db.models.constant import ModelRelations, StatusOptions
+from app.db.models.user import User
 
 
 class Contact(BaseModel):
@@ -27,12 +28,12 @@ class Contact(BaseModel):
     # when will be useful to permanently delete a contact that has been marked
     # inactive over a period of time
     status = fields.CharField(max_length=2, default=StatusOptions.Active.value)
-    tags = fields.ManyToManyField(
+    tags: fields.ManyToManyRelation["ContactTag"] = fields.ManyToManyField(
         model_name=ModelRelations.Tag.value, related_name="tags"
     )
 
     # owner
-    user = fields.ForeignKeyField(
+    user: fields.ForeignKeyRelation[User] = fields.ForeignKeyField(
         model_name=ModelRelations.User.value, related_name="contacts", null=True
     )
 
@@ -56,7 +57,7 @@ class ContactTag(BaseModel):
     """
 
     tag = fields.CharField(max_length=15)
-    contacts = fields.ManyToManyRelation["Contact"]
+    contacts: fields.ManyToManyRelation[Contact] = fields.ManyToManyRelation["Contact"]
 
     def __str__(self):
         return self.tag
@@ -68,11 +69,11 @@ class Phone(LabelMixin, BaseModel):
     """
 
     phone_number = fields.CharField(max_length=15)
-    contact = fields.ForeignKeyField(
+    contact: fields.ForeignKeyRelation[Contact] = fields.ForeignKeyField(
         ModelRelations.Contact.value, related_name="phones"
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.label} - {self.phone_number}"
 
 
@@ -82,11 +83,11 @@ class Email(LabelMixin, BaseModel):
     """
 
     email_address = fields.CharField(max_length=120)
-    contact = fields.ForeignKeyField(
+    contact: fields.ForeignKeyRelation[Contact] = fields.ForeignKeyField(
         ModelRelations.Contact.value, related_name="emails"
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.label} - {self.email_address}"
 
 
@@ -96,11 +97,11 @@ class SignificantDate(LabelMixin, BaseModel):
     """
 
     date = fields.DatetimeField()
-    contact = fields.ForeignKeyField(
+    contact: fields.ForeignKeyRelation[Contact] = fields.ForeignKeyField(
         ModelRelations.Contact.value, related_name="significant_dates"
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.label} - {self.date}"
 
 
@@ -110,9 +111,9 @@ class Address(LabelMixin, BaseModel):
     """
 
     location = fields.TextField()
-    contact = fields.ForeignKeyField(
+    contact: fields.ForeignKeyRelation[Contact] = fields.ForeignKeyField(
         ModelRelations.Contact.value, related_name="addresses"
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.label} - {self.location}"

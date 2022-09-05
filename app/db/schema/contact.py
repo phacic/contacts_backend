@@ -63,7 +63,7 @@ class ContactCreateSchema(ContactCreateDefaultSchema):
     significant_dates: Union[None, List[SignificantDateCreateSchema]] = []
 
     @root_validator
-    def check_firstname_phones(cls, values: Dict):
+    def check_firstname_phones(cls, values: Dict) -> Dict:
         """
         should at least have a phone number or a name
         """

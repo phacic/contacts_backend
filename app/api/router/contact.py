@@ -2,10 +2,10 @@ from typing import List
 
 from fastapi import APIRouter, Depends
 
+from app.api.deps import current_user
 from app.db.crud import create_new_contact
 from app.db.models import Contact, User
 from app.db.schema import ContactCreateSchema, ContactSchema
-from app.api.deps import current_user
 
 router = APIRouter()
 

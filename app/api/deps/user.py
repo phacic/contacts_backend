@@ -1,7 +1,12 @@
-from typing import Optional, Union, Generator, AsyncGenerator
+from typing import AsyncGenerator, Generator, Optional, Union
 
 from fastapi import Depends, Request
-from fastapi_users import BaseUserManager, IntegerIDMixin, InvalidPasswordException, FastAPIUsers
+from fastapi_users import (
+    BaseUserManager,
+    FastAPIUsers,
+    IntegerIDMixin,
+    InvalidPasswordException,
+)
 from fastapi_users_tortoise import TortoiseUserDatabase
 
 from app.core.config import settings
@@ -12,7 +17,6 @@ from app.utils.logger import app_logger
 
 
 class UserDb(TortoiseUserDatabase[User, int]):
-
     def __init__(self, *args, **kwargs):
         super(UserDb, self).__init__(User, None)
 
@@ -53,7 +57,9 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
 user_manager = UserManager(user_db=TortoiseUserDatabase(User))
 
 
-async def get_user_manager(user_db=Depends(get_user_db)) -> AsyncGenerator[UserManager, None]:
+async def get_user_manager(
+    user_db=Depends(get_user_db),
+) -> AsyncGenerator[UserManager, None]:
     """
     user manager for dependency injection
     """
