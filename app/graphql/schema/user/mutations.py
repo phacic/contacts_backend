@@ -12,18 +12,16 @@ from app.graphql.schema.user.types import (
     RegisterInput,
     RegisterOutput,
 )
-from app.internal import get_jwt_strategy, jwt_auth_backend
+from app.internal import (
+    InactiveUserError,
+    InvalidCredentialsError,
+    get_jwt_strategy,
+    jwt_auth_backend,
+)
 
 
 @strawberry.type
 class UserMutation:
-    @strawberry.field
-    async def register(self, input_data: RegisterInput) -> RegisterOutput:
-        """
-        register a new user
-        """
-        return RegisterOutput(token="")
-
     @strawberry.field
     async def login(self, info: Info, input_data: LoginInput) -> LoginOutput:
         """
@@ -32,12 +30,22 @@ class UserMutation:
         form = OAuth2PasswordRequestForm(
             username=input_data.username, password=input_data.password, scope=""
         )
-        user = await user_manager.authenticate(credentials=form)
 
-        if user is None or not user.is_active:
-            err = Error(err_text="bad credentials", code=0, description="")
+        user = await user_manager.authenticate(credentials=form)
+        if not user:
             return LoginOutput(
-                success=False, access_token=None, token_type=None, error=err
+                success=False,
+                access_token=None,
+                token_type=None,
+                error=InvalidCredentialsError,
+            )
+
+        if not user.is_active:
+            return LoginOutput(
+                success=False,
+                access_token=None,
+                token_type=None,
+                error=InactiveUserError,
             )
 
         strategy = get_jwt_strategy()
@@ -52,3 +60,9 @@ class UserMutation:
             token_type=bearer_resp.token_type,
             error=None,
         )
+
+    @strawberry.field
+    async def register(self, info: Info, input_data: RegisterInput) -> RegisterOutput:
+        """
+        register a new member
+        """

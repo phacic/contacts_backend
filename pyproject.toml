@@ -22,3 +22,14 @@ warn_unused_ignores = true
 warn_return_any = true
 no_implicit_reexport = false
 strict_equality = true
+
+[tool.pytest.ini_options]
+# cov=. -> coverage source is current directory. Note that --cov switch and pycharm debug dont work together
+#           to enable pycharm test debug remove --cov. A better way is under Run/Debug Configuration ->
+#           Templates -> Python tests -> pytest add the --no-cov to the Additional Arguments for all new tests
+# cov-report term-missing:skip-covered -> report missing and skip those with 100% coverage
+addopts =" --cov=. --cov-report=term-missing:skip-covered  --cov-fail-under=75 --verbose"
+# to find your tests
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
+# env files to load
+env_files = [".env", ".test.env"]

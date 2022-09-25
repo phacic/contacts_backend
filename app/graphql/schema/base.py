@@ -2,9 +2,9 @@ from typing import Union
 
 import strawberry
 
+from app.internal import BaseError
+
 
 @strawberry.type
-class Error:
-    err_text: Union[None, str]
-    code: Union[None, int]
-    description: Union[None, str]
+class Error(BaseError):
+    code: int

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from fastapi_users import FastAPIUsers
+from fastapi.responses import RedirectResponse
 from tortoise.contrib.fastapi import register_tortoise
 
 from app.api import v1_router as api_v1_router
@@ -38,10 +38,12 @@ app.include_router(
 
 # middleware
 origins = [
-    "localhost",
-    "localhost:7770",
-    "http://localhost",
-    "http://localhost:7770",
+    # "localhost",
+    # "localhost:7770",
+    # "http://localhost",
+    # "http://localhost:7770",
+    # "http://testserver"
+    "*"
 ]
 app.add_middleware(
     CORSMiddleware,
@@ -58,3 +60,9 @@ app.add_middleware(
 # register tortoise orm
 app_logger.debug("registering tortoise-orm")
 register_tortoise(app=app, config=orm_config, add_exception_handlers=True)
+
+
+@app.get("/", include_in_schema=False)
+async def index() -> RedirectResponse:
+    app_logger.info("redirecting to /docs")
+    return RedirectResponse(url="/docs")

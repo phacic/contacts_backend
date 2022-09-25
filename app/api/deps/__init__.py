@@ -2,12 +2,8 @@ from typing import Union
 
 from fastapi import Query
 
-from app.api.deps.user import (
-    current_user,
-    fastapi_user,  # noqa
-    get_user_manager,
-    user_manager,
-)
+from app.api.deps.user import fastapi_user  # noqa
+from app.api.deps.user import current_user, get_user_manager, user_manager
 
 
 class PaginateQueryParams:

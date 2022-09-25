@@ -15,6 +15,7 @@ class RegisterInput:
 @strawberry.type
 class RegisterOutput:
     access_token: str
+    error: Union[None, Error]
 
 
 @strawberry.input

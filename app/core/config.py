@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     @validator("DB_URL", pre=True)
     def build_db_url(cls, current_value: Optional[Any], values: Dict) -> Any:
         """build postgres connection string"""
+        print(values)
+
         if isinstance(current_value, str):
             return current_value
 

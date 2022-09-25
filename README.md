@@ -13,6 +13,8 @@ The server should be running on `http://localhost:7770`.
 
 Open API docs on `http://localhost:7770/docs`
 
+API docs on `http://localhost:7770/api/v1`
+
 GraphQL on `http://localhost:7770/graphql/v1`
 
 ## Models and Migration
@@ -39,7 +41,7 @@ mutation ($input: LoginInput!) {
     accessToken
     tokenType
     error {
-      errText
+      text
       code
       description
     }
