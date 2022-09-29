@@ -28,6 +28,11 @@ Upgrade/downgrade from migration database
     docker-compose run --rm web aerich upgrade/downgrade
 
 
+login to db
+    
+    psql -h db -U postgres
+
+
 ## GraphQL
 
 ### Register

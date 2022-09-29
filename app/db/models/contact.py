@@ -50,6 +50,16 @@ class Contact(BaseModel):
         ]
         return f'{" ".join(names)}'.strip()
 
+    async def save(
+        self,
+        using_db=None,
+        update_fields=None,
+        force_create: bool = False,
+        force_update: bool = False,
+    ) -> None:
+        await super(Contact, self).save(using_db=using_db, update_fields=update_fields,
+                                        force_create=force_create, force_update=force_update)
+
 
 class ContactTag(BaseModel):
     """

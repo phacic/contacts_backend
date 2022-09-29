@@ -1,10 +1,13 @@
 import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
+from tests.factory import ContactFactory
+
+from app.db.models import Contact
 
 
 @pytest.mark.asyncio
-async def test_root(app_client_events) -> None:
+async def test_root(app_client_events: TestClient) -> None:
     """
     test root redirect to docs
     """
