@@ -57,8 +57,12 @@ class Contact(BaseModel):
         force_create: bool = False,
         force_update: bool = False,
     ) -> None:
-        await super(Contact, self).save(using_db=using_db, update_fields=update_fields,
-                                        force_create=force_create, force_update=force_update)
+        await super(Contact, self).save(
+            using_db=using_db,
+            update_fields=update_fields,
+            force_create=force_create,
+            force_update=force_update,
+        )
 
 
 class ContactTag(BaseModel):

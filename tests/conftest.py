@@ -1,15 +1,27 @@
-from typing import Callable, Generator
+import asyncio
+from typing import Generator
 
 import pytest
-import factory
-from factory_boy_extra.tortoise_factory import TortoiseModelFactory
 from fastapi.testclient import TestClient
+from tortoise.connection import connections
 from tortoise.contrib.test import finalizer as tortoise_finalize
 from tortoise.contrib.test import initializer as tortoise_init
 
-from app.core.tortoise import MODEL_LIST
 from app.core.config import settings
+from app.core.tortoise import MODEL_LIST
 from app.main import app
+
+
+@pytest.fixture
+def close_connections() -> Generator:
+    """
+    close open connection to db in the current loop or the final teardown fails
+    with RuntimeError: Task attached to a different loop
+    """
+
+    yield
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(connections.close_all())
 
 
 @pytest.fixture
@@ -29,8 +41,4 @@ def app_client_events() -> Generator[TestClient, None, None]:
     with TestClient(app) as test_app:
         yield test_app
 
-    # tortoise_finalize()
-
-
-
-
+    tortoise_finalize()

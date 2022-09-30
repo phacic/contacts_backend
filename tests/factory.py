@@ -1,10 +1,9 @@
 import asyncio
-from asyncio.exceptions import InvalidStateError
 from typing import Any
 
 import factory
-from factory import base
 import nest_asyncio
+from factory import base
 
 from app.db.models import Contact
 
@@ -36,10 +35,16 @@ class TortoiseModelFactory(base.Factory):
         async def save_instance(instance):
             await instance.save()
 
-        nest_asyncio.apply(loop)
-        asyncio.run(save_instance(instance=model_instance))
-        return model_instance
+        # because of the patch a database connections lingers after the factory
+        # is done and that prevents the database from closing after the tests
+        # unless connections.close_all() is called from within the test, the test
+        # teardown always fails, even with conftest teardown
+        # RuntimeError: Task is attached to a different loop
 
+        nest_asyncio.apply(loop)
+        # asyncio.run(save_instance(instance=model_instance))
+        asyncio.get_event_loop().run_until_complete(save_instance(model_instance))
+        return model_instance
 
 
 class ContactFactory(TortoiseModelFactory):

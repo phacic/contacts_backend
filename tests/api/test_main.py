@@ -1,9 +1,9 @@
 import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
-from tests.factory import ContactFactory
 
 from app.db.models import Contact
+from tests.factory import ContactFactory
 
 
 @pytest.mark.asyncio
