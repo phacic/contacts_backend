@@ -33,6 +33,11 @@ login to db
     psql -h db -U postgres
 
 
+## Testing
+
+    dc run --rm web pytest
+
+
 ## GraphQL
 
 ### Register
