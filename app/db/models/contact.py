@@ -25,7 +25,7 @@ class Contact(BaseModel):
     # active, inactive (moved to recycle)
     # if set to inactive, no further changes will be allowed, so we can safely
     # use updated_at to check the date status change happened (to inactive)
-    # when will be useful to permanently delete a contact that has been marked
+    # which will be useful to permanently delete a contact that has been marked
     # inactive over a period of time
     status = fields.CharField(max_length=2, default=StatusOptions.Active.value)
     tags: fields.ManyToManyRelation["ContactTag"] = fields.ManyToManyField(
@@ -44,9 +44,9 @@ class Contact(BaseModel):
 
     def __str__(self):
         names = [
-            str(self.first_name).strip(),
-            str(self.middle_name).strip(),
-            str(self.last_name).strip(),
+            str(self.first_name or "").strip(),
+            str(self.middle_name or "").strip(),
+            str(self.last_name or "").strip(),
         ]
         return f'{" ".join(names)}'.strip()
 
@@ -70,7 +70,7 @@ class ContactTag(BaseModel):
     model for tags, for contacts, as a way of grouping contacts
     """
 
-    tag = fields.CharField(max_length=15)
+    tag = fields.CharField(max_length=50)
     contacts: fields.ManyToManyRelation[Contact] = fields.ManyToManyRelation["Contact"]
 
     def __str__(self):
@@ -82,7 +82,7 @@ class Phone(LabelMixin, BaseModel):
     model for phone numbers associated with a contact
     """
 
-    phone_number = fields.CharField(max_length=15)
+    phone_number = fields.CharField(max_length=50)
     contact: fields.ForeignKeyRelation[Contact] = fields.ForeignKeyField(
         ModelRelations.Contact.value, related_name="phones"
     )
