@@ -48,3 +48,10 @@ async def test_create_phone(
     # phone should be related to contact
     for p in phones:
         assert p.contact.id == contact.id
+
+    # emails should be related to contact
+    for e in emails:
+        assert e.contact.id == contact.id
+
+    assert address.contact_id == contact.id
+    assert dates.contact_id == contact.id
