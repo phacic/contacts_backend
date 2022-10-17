@@ -131,3 +131,17 @@ class Address(LabelMixin, BaseModel):
 
     def __str__(self) -> str:
         return f"{self.label} - {self.location}"
+
+
+class SocialMedia(LabelMixin, BaseModel):
+    """
+    social media links for the contact
+    """
+
+    contact: fields.ForeignKeyRelation[Contact] = fields.ForeignKeyField(
+        ModelRelations.Contact.value, related_name="socials"
+    )
+    url = fields.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.label} - {self.url}"

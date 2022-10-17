@@ -6,7 +6,10 @@ import nest_asyncio
 from factory import base
 from faker import Faker
 
-from app.db.models import Address, Contact, Email, Phone, SignificantDate
+from app.db.models import (
+    Address, Contact, Email, Phone,
+    SignificantDate, User, SocialMedia
+)
 
 fake = Faker()
 
@@ -62,6 +65,16 @@ class TortoiseModelFactory(base.Factory):
 Labels = ["Work", "Home", "Main", "Other"]
 Contact_labels = Labels + ["Mobile"]
 Date_labels = ["Birthday", "Anniversary"]
+social_labels = ["Twitter", "Facebook", "Instagram", "Snapchat", "LinkedIn"]
+
+
+class UserFactory(TortoiseModelFactory):
+    class Meta:
+        model = User
+
+    full_name = factory.Faker("name")
+    email = factory.Faker("email")
+    hashed_password = factory.LazyFunction(lambda: "".join(fake.random_letters(25)))
 
 
 class ContactFactory(TortoiseModelFactory):
@@ -77,6 +90,7 @@ class ContactFactory(TortoiseModelFactory):
     spouse = factory.Faker("name")
     nickname = factory.Faker("name")
     is_favorite = factory.Faker("boolean")
+    user = factory.SubFactory(UserFactory)
 
 
 class PhoneFactory(TortoiseModelFactory):
@@ -113,3 +127,13 @@ class AddressFactory(TortoiseModelFactory):
     location = factory.Faker("address")
     label = factory.Iterator(Labels)
     contact = factory.SubFactory(ContactFactory)
+
+
+class SocialMediaFactory(TortoiseModelFactory):
+    class Meta:
+        model = SocialMedia
+
+    url = factory.Faker("uri")
+    label = factory.Iterator(social_labels)
+    contact = factory.SubFactory(ContactFactory)
+

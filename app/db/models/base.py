@@ -14,4 +14,4 @@ class BaseModel(models.Model):
 
 
 class LabelMixin:
-    label = fields.CharField(max_length=15)
+    label = fields.CharField(max_length=25)
