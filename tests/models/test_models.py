@@ -14,7 +14,7 @@ from tests.factory import (
 
 
 @pytest.mark.asyncio
-async def test_create_user(app_client_events: TestClient, close_connections: None) -> None:
+async def test_create_user(app_client, close_connections: None) -> None:
     _ = close_connections
 
     user = UserFactory.create()
@@ -26,7 +26,7 @@ async def test_create_user(app_client_events: TestClient, close_connections: Non
 
 @pytest.mark.asyncio
 async def test_create_contact(
-    app_client_events: TestClient, close_connections: None
+    app_client, close_connections: None
 ) -> None:
     """ """
     _ = close_connections
@@ -43,7 +43,7 @@ async def test_create_contact(
 
 @pytest.mark.asyncio
 async def test_contact_with_details(
-    app_client_events: TestClient, close_connections: None
+    app_client, close_connections: None
 ) -> None:
     """"""
 

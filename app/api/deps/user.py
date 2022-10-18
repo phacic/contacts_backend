@@ -25,7 +25,6 @@ async def get_user_db():
     """
     dependency for user_db
     """
-    # yield UserDb()
     yield TortoiseUserDatabase(User)
 
 

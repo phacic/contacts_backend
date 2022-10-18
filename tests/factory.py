@@ -5,6 +5,7 @@ import factory
 import nest_asyncio
 from factory import base
 from faker import Faker
+from fastapi_users.password import PasswordHelper
 
 from app.db.models import (
     Address, Contact, Email, Phone,
@@ -12,6 +13,8 @@ from app.db.models import (
 )
 
 fake = Faker()
+passwd_helper = PasswordHelper()
+passwd = fake.password()
 
 
 class TortoiseModelFactory(base.Factory):
@@ -74,7 +77,7 @@ class UserFactory(TortoiseModelFactory):
 
     full_name = factory.Faker("name")
     email = factory.Faker("email")
-    hashed_password = factory.LazyFunction(lambda: "".join(fake.random_letters(25)))
+    hashed_password = factory.LazyFunction(lambda: passwd_helper.hash(passwd))
 
 
 class ContactFactory(TortoiseModelFactory):
@@ -136,4 +139,3 @@ class SocialMediaFactory(TortoiseModelFactory):
     url = factory.Faker("uri")
     label = factory.Iterator(social_labels)
     contact = factory.SubFactory(ContactFactory)
-

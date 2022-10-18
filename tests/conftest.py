@@ -25,7 +25,7 @@ def close_connections() -> Generator:
 
 
 @pytest.fixture
-def app_client() -> Generator[TestClient, None, None]:
+def app_client_() -> Generator[TestClient, None, None]:
     """
     fixture for raw app client. If init is True run startup and shutdown events
     """
@@ -33,7 +33,7 @@ def app_client() -> Generator[TestClient, None, None]:
 
 
 @pytest.fixture
-def app_client_events() -> Generator[TestClient, None, None]:
+def app_client() -> Generator[TestClient, None, None]:
     """
     fixture for app client that runs events (startup, shutdown)
     """
@@ -42,3 +42,4 @@ def app_client_events() -> Generator[TestClient, None, None]:
         yield test_app
 
     tortoise_finalize()
+
