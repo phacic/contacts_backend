@@ -13,42 +13,35 @@ from tests.factory import (
 )
 
 
-@pytest.mark.asyncio
-async def test_create_user(app_client, close_connections: None) -> None:
-    _ = close_connections
+@pytest.mark.anyio
+async def test_create_user() -> None:
+    """"""
+    user = await UserFactory()
+    await UserFactory.create_batch(2)
 
-    user = UserFactory.create()
     db_count = await User.all().count()
 
     assert user is not None
-    assert db_count == 1
+    assert db_count == 3
 
 
-@pytest.mark.asyncio
-async def test_create_contact(
-    app_client, close_connections: None
-) -> None:
+@pytest.mark.anyio
+async def test_create_contact(app_client, create_contact) -> None:
     """ """
-    _ = close_connections
-
-    contacts = ContactFactory.create_batch(2)
+    contact = await create_contact()
+    # contacts = await ContactFactory.create_batch(2)
     db_count = await Contact.all().count()
 
-    assert len(contacts) == 2
-    assert db_count == 2
+    # assert len(contacts) == 2
+    assert db_count == 1
 
-    for c in contacts:
-        assert c.user_id is not None
+    # for c in contacts:
+    #     assert c.user_id is not None
 
 
-@pytest.mark.asyncio
-async def test_contact_with_details(
-    app_client, close_connections: None
-) -> None:
+@pytest.mark.anyio
+async def test_contact_with_details(app_client) -> None:
     """"""
-
-    _ = close_connections
-
     contact = ContactFactory()
     phones = PhoneFactory.create_batch(2, contact=contact)
     emails = EmailFactory.create_batch(2, contact=contact)

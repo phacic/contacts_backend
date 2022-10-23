@@ -2,10 +2,10 @@ import asyncio
 from typing import Any
 
 import factory
-import nest_asyncio
 from factory import base
 from faker import Faker
 from fastapi_users.password import PasswordHelper
+from tortoise.connection import connections
 
 from app.db.models import (
     Address, Contact, Email, Phone,
@@ -17,52 +17,87 @@ passwd_helper = PasswordHelper()
 passwd = fake.password()
 
 
-class TortoiseModelFactory(base.Factory):
-    """
-    Base factory for tortoise factory.
-    """
+# class TortoiseModelFactory(base.Factory):
+#     """
+#     Base factory for tortoise factory.
+#     """
+#
+#     class Meta:
+#         abstract = True
+#
+#     @classmethod
+#     def _create(cls, model_class, *args: Any, **kwargs: Any):
+#         """
+#         Creates an instance of Tortoise model.
+#
+#         :param model_class: model class.
+#         :param args: factory args.
+#         :param kwargs: factory keyword-args.
+#         :return: instance of model class.
+#         """
+#
+#         instance = model_class(*args, **kwargs)
+#
+#         try:
+#             loop = asyncio.get_running_loop()
+#         except RuntimeError:
+#             loop = None
+#
+#         async def save_instance(model_instance):
+#             await model_instance.save()
+#
+#         if loop:
+#             # patch asyncio to allow nesting loops.
+#             # https://github.com/erdewit/nest_asyncio
+#             nest_asyncio.apply(loop=loop)
+#
+#             # because of the patch a database connections lingers after the factory
+#             # is done and that prevents the database from closing after the tests.
+#             # unless Tortoise.connection.connections.close_all() is called from within the test,
+#             # the test teardown always fails, even with conftest teardown
+#             # RuntimeError: Task is attached to a different loop
+#
+#             asyncio.get_event_loop().run_until_complete(save_instance(instance))
+#
+#         else:
+#             asyncio.run(save_instance(instance))
+#
+#         return instance
 
-    class Meta:
-        abstract = True
+
+class TModelFactory(base.Factory):
+
+    def __init__(self, event_loop: asyncio.AbstractEventLoop):
+        self.loop = event_loop
 
     @classmethod
-    def _create(cls, model_class, *args: Any, **kwargs: Any):
+    def _create(cls, model_class, *args, **kwargs):
         """
-        Creates an instance of Tortoise model.
-
-        :param model_class: model class.
-        :param args: factory args.
-        :param kwargs: factory keyword-args.
-        :return: instance of model class.
+        use async to create
         """
+        async def do_create():
+            nonlocal model_class
+            nonlocal args
+            nonlocal kwargs
 
-        instance = model_class(*args, **kwargs)
+            instance = model_class(*args, **kwargs)
+            await instance.save()
+            return instance
 
-        try:
-            loop = asyncio.get_running_loop()
-        except RuntimeError:
-            loop = None
+        return do_create()
 
-        async def save_instance(model_instance):
-            await model_instance.save()
+    @classmethod
+    def create_batch(cls, size, **kwargs):
+        """
+        use async to create batch
+        """
+        async def do_create_batch():
+            nonlocal size
+            nonlocal kwargs
 
-        if loop:
-            # patch asyncio to allow nesting loops.
-            # https://github.com/erdewit/nest_asyncio
-            nest_asyncio.apply(loop=loop)
+            return [await cls.create(**kwargs) for _ in range(size)]
 
-            # because of the patch a database connections lingers after the factory
-            # is done and that prevents the database from closing after the tests.
-            # unless Tortoise.connection.connections.close_all() is called from within the test,
-            # the test teardown always fails, even with conftest teardown
-            # RuntimeError: Task is attached to a different loop
-
-            asyncio.get_event_loop().run_until_complete(save_instance(instance))
-
-        else:
-            asyncio.run(save_instance(instance))
-
-        return instance
+        return do_create_batch()
 
 
 Labels = ["Work", "Home", "Main", "Other"]
@@ -71,7 +106,7 @@ Date_labels = ["Birthday", "Anniversary"]
 social_labels = ["Twitter", "Facebook", "Instagram", "Snapchat", "LinkedIn"]
 
 
-class UserFactory(TortoiseModelFactory):
+class UserTFactory(TModelFactory):
     class Meta:
         model = User
 
@@ -80,7 +115,16 @@ class UserFactory(TortoiseModelFactory):
     hashed_password = factory.LazyFunction(lambda: passwd_helper.hash(passwd))
 
 
-class ContactFactory(TortoiseModelFactory):
+class UserFactory(TModelFactory):
+    class Meta:
+        model = User
+
+    full_name = factory.Faker("name")
+    email = factory.Faker("email")
+    hashed_password = factory.LazyFunction(lambda: passwd_helper.hash(passwd))
+
+
+class ContactFactory(TModelFactory):
     class Meta:
         model = Contact
 
@@ -96,7 +140,7 @@ class ContactFactory(TortoiseModelFactory):
     user = factory.SubFactory(UserFactory)
 
 
-class PhoneFactory(TortoiseModelFactory):
+class PhoneFactory(TModelFactory):
     class Meta:
         model = Phone
 
@@ -105,7 +149,7 @@ class PhoneFactory(TortoiseModelFactory):
     contact = factory.SubFactory(ContactFactory)
 
 
-class EmailFactory(TortoiseModelFactory):
+class EmailFactory(TModelFactory):
     class Meta:
         model = Email
 
@@ -114,7 +158,7 @@ class EmailFactory(TortoiseModelFactory):
     contact = factory.SubFactory(ContactFactory)
 
 
-class SignificantDateFactory(TortoiseModelFactory):
+class SignificantDateFactory(TModelFactory):
     class Meta:
         model = SignificantDate
 
@@ -123,7 +167,7 @@ class SignificantDateFactory(TortoiseModelFactory):
     contact = factory.SubFactory(ContactFactory)
 
 
-class AddressFactory(TortoiseModelFactory):
+class AddressFactory(TModelFactory):
     class Meta:
         model = Address
 
@@ -132,7 +176,7 @@ class AddressFactory(TortoiseModelFactory):
     contact = factory.SubFactory(ContactFactory)
 
 
-class SocialMediaFactory(TortoiseModelFactory):
+class SocialMediaFactory(TModelFactory):
     class Meta:
         model = SocialMedia
 

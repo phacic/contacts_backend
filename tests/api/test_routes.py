@@ -4,14 +4,11 @@ import pytest
 from faker import Faker
 from fastapi import status
 from fastapi.testclient import TestClient
-from tortoise.connection import connections
-
-from tests.factory import passwd, UserFactory
 
 fake = Faker()
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_root_route(app_client: TestClient) -> None:
     """
     test root redirect to docs
@@ -30,7 +27,7 @@ async def test_root_route(app_client: TestClient) -> None:
     assert resp.request.path_url == "/docs"
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 class TestUserRoute:
 
     async def test_register(self, app_client: TestClient) -> None:
@@ -46,11 +43,8 @@ class TestUserRoute:
         assert resp.status_code == status.HTTP_201_CREATED
         assert resp_data['status'] == 'A'
 
-    async def test_login(self, app_client: TestClient, close_connections: None) -> None:
-        _ = close_connections
-
-        user = UserFactory()
-        await connections.close_all()
+    async def test_login(self, app_client: TestClient, user_factory, passwd) -> None:
+        user = app_client.portal.call(user_factory)
 
         payload = {
             "username": user.email,
