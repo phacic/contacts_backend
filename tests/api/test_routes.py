@@ -5,6 +5,8 @@ from faker import Faker
 from fastapi import status
 from fastapi.testclient import TestClient
 
+from tests.factory import passwd
+
 fake = Faker()
 
 
@@ -43,7 +45,7 @@ class TestUserRoute:
         assert resp.status_code == status.HTTP_201_CREATED
         assert resp_data['status'] == 'A'
 
-    async def test_login(self, app_client: TestClient, user_factory, passwd) -> None:
+    async def test_login(self, app_client: TestClient, user_factory) -> None:
         user = app_client.portal.call(user_factory)
 
         payload = {

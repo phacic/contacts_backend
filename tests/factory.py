@@ -15,6 +15,7 @@ from app.db.models import (
 fake = Faker()
 passwd_helper = PasswordHelper()
 passwd = fake.password()
+hashed_passwd = passwd_helper.hash(passwd)
 
 
 # class TortoiseModelFactory(base.Factory):
@@ -104,15 +105,6 @@ Labels = ["Work", "Home", "Main", "Other"]
 Contact_labels = Labels + ["Mobile"]
 Date_labels = ["Birthday", "Anniversary"]
 social_labels = ["Twitter", "Facebook", "Instagram", "Snapchat", "LinkedIn"]
-
-
-class UserTFactory(TModelFactory):
-    class Meta:
-        model = User
-
-    full_name = factory.Faker("name")
-    email = factory.Faker("email")
-    hashed_password = factory.LazyFunction(lambda: passwd_helper.hash(passwd))
 
 
 class UserFactory(TModelFactory):
