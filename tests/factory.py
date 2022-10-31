@@ -1,11 +1,11 @@
 import asyncio
+import inspect
 from typing import Any
 
 import factory
 from factory import base
 from faker import Faker
 from fastapi_users.password import PasswordHelper
-from tortoise.connection import connections
 
 from app.db.models import (
     Address, Contact, Email, Phone,
@@ -81,6 +81,12 @@ class TModelFactory(base.Factory):
             nonlocal args
             nonlocal kwargs
 
+            # SubFactories with return coroutine, await value
+            # and pass back to kwargs
+            for key, value in kwargs.items():
+                if inspect.isawaitable(value):
+                    kwargs[key] = await value
+
             instance = model_class(*args, **kwargs)
             await instance.save()
             return instance
@@ -129,6 +135,9 @@ class ContactFactory(TModelFactory):
     spouse = factory.Faker("name")
     nickname = factory.Faker("name")
     is_favorite = factory.Faker("boolean")
+
+    # >    if value and not value._saved_in_db:
+    # E    AttributeError: 'coroutine' object has no attribute '_saved_in_db'
     user = factory.SubFactory(UserFactory)
 
 
