@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from asyncio import run
+from asyncio import run, Future
 
 from app.db.models import Contact, Phone, User
 from tests.factory import (
@@ -29,23 +29,25 @@ def test_create_user(app_client) -> None:
 
 def test_create_contact(app_client) -> None:
     """ """
-    contacts = app_client.portal.call(ContactFactory)
+    contacts = app_client.portal.call(ContactFactory.create_batch, *(2,))
 
     async def get_contacts_count():
         return await Contact.all().count()
 
     db_count = app_client.portal.call(get_contacts_count)
-    assert db_count == 1
+    assert db_count == 2
 
-    # for c in contacts:
-    #     assert c.user_id is not None
+    for c in contacts:
+        assert c.user_id is not None
 
 
 @pytest.mark.anyio
 async def test_contact_with_details(app_client) -> None:
     """"""
-    contact = ContactFactory()
-    phones = PhoneFactory.create_batch(2, contact=contact)
+    contact = app_client.portal.call(ContactFactory)
+    f: Future = Future()
+    app_client.portal._spawn_task_from_thread(PhoneFactory.create_batch, (2,), {}, None, f)
+    phones = f.result()
     emails = EmailFactory.create_batch(2, contact=contact)
     address = AddressFactory.create(contact=contact)
     dates = SignificantDateFactory(contact=contact)
