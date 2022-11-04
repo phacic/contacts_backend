@@ -1,6 +1,5 @@
 import asyncio
 import inspect
-from typing import Any
 
 import factory
 from factory import base
@@ -8,8 +7,13 @@ from faker import Faker
 from fastapi_users.password import PasswordHelper
 
 from app.db.models import (
-    Address, Contact, Email, Phone,
-    SignificantDate, User, SocialMedia
+    Address,
+    Contact,
+    Email,
+    Phone,
+    SignificantDate,
+    SocialMedia,
+    User,
 )
 
 fake = Faker()
@@ -67,7 +71,6 @@ hashed_passwd = passwd_helper.hash(passwd)
 
 
 class TModelFactory(base.Factory):
-
     def __init__(self, event_loop: asyncio.AbstractEventLoop):
         self.loop = event_loop
 
@@ -76,6 +79,7 @@ class TModelFactory(base.Factory):
         """
         use async to create
         """
+
         async def do_create():
             nonlocal model_class
             nonlocal args
@@ -98,6 +102,7 @@ class TModelFactory(base.Factory):
         """
         use async to create batch
         """
+
         async def do_create_batch():
             nonlocal size
             nonlocal kwargs
@@ -105,6 +110,24 @@ class TModelFactory(base.Factory):
             return [await cls.create(**kwargs) for _ in range(size)]
 
         return do_create_batch()
+
+    @classmethod
+    def call_create(cls, kwargs=None):
+        """
+        so we can safely pass **kwargs from BlockingPortal.call()
+        to cls.create()
+        """
+        kwargs = kwargs or {}
+        return cls.create(**kwargs)
+
+    @classmethod
+    def call_create_batch(cls, size, kwargs=None):
+        """
+        so we can safely pass **kwargs from BlockingPortal.call()
+        to cls.create_batch()
+        """
+        kwargs = kwargs or {}
+        return cls.create_batch(size, **kwargs)
 
 
 Labels = ["Work", "Home", "Main", "Other"]

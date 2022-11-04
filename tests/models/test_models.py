@@ -1,6 +1,4 @@
 import pytest
-from fastapi.testclient import TestClient
-from asyncio import run, Future
 
 from app.db.models import Contact, Phone, User
 from tests.factory import (
@@ -10,7 +8,7 @@ from tests.factory import (
     PhoneFactory,
     SignificantDateFactory,
     SocialMediaFactory,
-    UserFactory
+    UserFactory,
 )
 
 
@@ -44,17 +42,25 @@ def test_create_contact(app_client) -> None:
 @pytest.mark.anyio
 async def test_contact_with_details(app_client) -> None:
     """"""
-    contact = app_client.portal.call(ContactFactory)
-    f: Future = Future()
-    app_client.portal._spawn_task_from_thread(PhoneFactory.create_batch, (2,), {}, None, f)
-    phones = f.result()
-    emails = EmailFactory.create_batch(2, contact=contact)
-    address = AddressFactory.create(contact=contact)
-    dates = SignificantDateFactory(contact=contact)
-    socials = SocialMediaFactory.create_batch(3, contact=contact)
+    portal = app_client.portal
 
-    contact_count = await Contact.all().count()
-    phones_count = await Phone.all().count()
+    contact = portal.call(ContactFactory.call_create)
+    assign_contact = {"contact": contact}
+
+    phones = portal.call(PhoneFactory.call_create_batch, *(2, assign_contact))
+    emails = portal.call(EmailFactory.call_create_batch, *(2, assign_contact))
+    address = portal.call(AddressFactory.call_create, *(assign_contact,))
+    dates = portal.call(SignificantDateFactory.call_create, *(assign_contact,))
+    socials = portal.call(SocialMediaFactory.call_create_batch, *(3, assign_contact))
+
+    async def count_contacts():
+        return await Contact.all().count()
+
+    async def count_phones():
+        return await Phone.all().count()
+
+    contact_count = portal.call(count_contacts)
+    phones_count = portal.call(count_phones)
 
     assert contact_count == 1
     assert phones_count == 2

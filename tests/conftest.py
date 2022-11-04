@@ -1,27 +1,40 @@
 import asyncio
-from typing import Generator, Coroutine, Callable, List, Union, TYPE_CHECKING, Type
+from typing import TYPE_CHECKING, Callable, Coroutine, Generator, List, Type, Union
 
 import pytest
-from fastapi.testclient import TestClient
-from tortoise.connection import connections
-from tortoise.contrib.test import finalizer as tortoise_finalize, initializer as tortoise_init
 from faker import Faker
-from fastapi_users.password import PasswordHelper
+from fastapi.testclient import TestClient
 from pytest_factoryboy import register
+from tortoise.connection import connections
+from tortoise.contrib.test import finalizer as tortoise_finalize
+from tortoise.contrib.test import initializer as tortoise_init
 
 from app.core.config import settings
 from app.core.tortoise import MODEL_LIST
-from app.main import app
 from app.db.models import Contact, User
-from tests.factory import UserFactory, passwd, hashed_passwd
+from app.main import app
+from tests.factory import (
+    AddressFactory,
+    EmailFactory,
+    PhoneFactory,
+    SignificantDateFactory,
+    SocialMediaFactory,
+    UserFactory,
+    hashed_passwd,
+)
 
 if TYPE_CHECKING:
-    from tortoise import BaseDBAsyncClient, Model
+    from tortoise import Model
 
 fake = Faker()
 
 # register Factories as fixtures
 register(UserFactory)
+register(PhoneFactory)
+register(EmailFactory)
+register(AddressFactory)
+register(SignificantDateFactory)
+register(SocialMediaFactory)
 
 
 @pytest.fixture
@@ -29,10 +42,10 @@ def anyio_backend():
     """
     Specifying the backends to run on
     """
-    return 'asyncio'
+    return "asyncio"
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def evloop() -> Generator[asyncio.AbstractEventLoop, None, None]:
     loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop
@@ -51,7 +64,7 @@ def close_connections() -> Generator:
     loop.run_until_complete(connections.close_all())
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def init_database(evloop: asyncio.BaseEventLoop) -> Generator:
     """
     create database on start and drop on end
@@ -61,8 +74,10 @@ def init_database(evloop: asyncio.BaseEventLoop) -> Generator:
     tortoise_finalize()
 
 
-@pytest.fixture(scope='module')
-def app_client(evloop: asyncio.BaseEventLoop, init_database) -> Generator[TestClient, None, None]:
+@pytest.fixture(scope="module")
+def app_client(
+    evloop: asyncio.BaseEventLoop, init_database
+) -> Generator[TestClient, None, None]:
     """
     fixture for app client that runs events (startup, shutdown).
     include init_database fixture to create database on start and drop it on end
@@ -86,22 +101,24 @@ class ModelFactoryFixtureHelper:
     class Meta(FixtureFactoryBaseMeta):
         pass
 
-    def __init__(self, model: Type['Model']):
+    def __init__(self, model: Type["Model"]):
         self.model = model
 
     def __call__(self, size=1, **kwargs):
         return self.create(size, **kwargs)
 
-    async def _create_model_obj(self, **kwargs) -> 'Model':
+    async def _create_model_obj(self, **kwargs) -> "Model":
         instance = self.model(**kwargs)
         await instance.save()
         return instance
 
-    async def _create_model_batch_objs(self, size: int, **kwargs) -> List['Model']:
+    async def _create_model_batch_objs(self, size: int, **kwargs) -> List["Model"]:
         return [await self._create_model_obj(**kwargs) for _ in range(size)]
 
-    async def create(self, size: int = 1, **kwargs) -> Union['Model', List['Model']]:
-        instances = await self._create_model_batch_objs(model=self.model, size=size, **kwargs)
+    async def create(self, size: int = 1, **kwargs) -> Union["Model", List["Model"]]:
+        instances = await self._create_model_batch_objs(
+            model=self.model, size=size, **kwargs
+        )
         return instances[0] if size == 1 else instances
 
 
@@ -115,7 +132,7 @@ def user_factory_2() -> Callable[[int], Coroutine[None, None, Union[User, List[U
         data = {
             "full_name": fake.name(),
             "email": fake.email(),
-            "hashed_password": hashed_passwd
+            "hashed_password": hashed_passwd,
         }
         helper = await ModelFactoryFixtureHelper(model=User)
         return await helper.create(size=size, **data)
@@ -124,8 +141,10 @@ def user_factory_2() -> Callable[[int], Coroutine[None, None, Union[User, List[U
 
 
 @pytest.fixture()
-def contact_factory_2() -> Callable[[int], Coroutine[None, None, Union[Contact, List[Contact]]]]:
-    """ create contact factory fixture"""
+def contact_factory_2() -> Callable[
+    [int], Coroutine[None, None, Union[Contact, List[Contact]]]
+]:
+    """create contact factory fixture"""
 
     async def create_batch(size: int = 1, **kwargs):
         helper = ModelFactoryFixtureHelper(model=User)

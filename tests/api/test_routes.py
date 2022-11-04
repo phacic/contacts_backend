@@ -31,30 +31,26 @@ async def test_root_route(app_client: TestClient) -> None:
 
 @pytest.mark.anyio
 class TestUserRoute:
-
     async def test_register(self, app_client: TestClient) -> None:
 
         reg_data = {
             "full_name": fake.name(),
             "email": fake.email(),
-            "password": fake.password()
+            "password": fake.password(),
         }
 
         resp = app_client.post(url="/auth/register", data=json.dumps(reg_data))
         resp_data = resp.json()
         assert resp.status_code == status.HTTP_201_CREATED
-        assert resp_data['status'] == 'A'
+        assert resp_data["status"] == "A"
 
     async def test_login(self, app_client: TestClient, user_factory) -> None:
         user = app_client.portal.call(user_factory)
 
-        payload = {
-            "username": user.email,
-            "password": passwd
-        }
+        payload = {"username": user.email, "password": passwd}
 
         resp = app_client.post(url="/auth/login", data=payload, headers={}, files=[])
         resp_data = resp.json()
 
         assert resp.status_code == status.HTTP_200_OK
-        assert resp_data['access_token'] is not None
+        assert resp_data["access_token"] is not None
