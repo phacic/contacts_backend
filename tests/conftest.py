@@ -1,9 +1,12 @@
 import asyncio
-from typing import TYPE_CHECKING, Callable, Coroutine, Generator, List, Type, Union
+from typing import TYPE_CHECKING, Callable, Coroutine, Generator, List, Type, Union, Tuple
 
 import pytest
+from anyio.from_thread import BlockingPortal
 from faker import Faker
 from fastapi.testclient import TestClient
+from fastapi import Response
+from fastapi_users.authentication.transport.bearer import BearerResponse
 from pytest_factoryboy import register
 from tortoise.connection import connections
 from tortoise.contrib.test import finalizer as tortoise_finalize
@@ -21,6 +24,11 @@ from tests.factory import (
     SocialMediaFactory,
     UserFactory,
     hashed_passwd,
+)
+
+from app.internal import (
+    get_jwt_strategy,
+    jwt_auth_backend,
 )
 
 if TYPE_CHECKING:
@@ -84,6 +92,14 @@ def app_client(
     """
     with TestClient(app) as test_app:
         yield test_app
+
+
+@pytest.fixture(scope="module")
+def app_portal(app_client: TestClient) -> Generator[BlockingPortal, None, None]:
+    """
+    Blocking portal to use to call async functions
+    """
+    yield app_client.portal
 
 
 class FixtureFactoryBaseMeta:
@@ -151,3 +167,18 @@ def contact_factory_2() -> Callable[
         return await helper.create(size=size)
 
     return create_batch
+
+
+@pytest.fixture()
+def logged_in_user(user_factory, app_portal) -> Generator[Tuple[str, User], None, None]:
+    """
+    log a user in and return token and user
+    """
+    user = app_portal.call(user_factory)
+
+    strategy = get_jwt_strategy()
+    resp = Response()
+    bearer_resp: BearerResponse = app_portal.call(jwt_auth_backend.login, *(strategy, user, resp))
+
+    yield bearer_resp.access_token, user
+

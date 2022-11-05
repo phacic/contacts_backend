@@ -1,10 +1,12 @@
 import json
+from typing import Tuple
 
 import pytest
 from faker import Faker
 from fastapi import status
 from fastapi.testclient import TestClient
 
+from app.db.models import User
 from tests.factory import passwd
 
 fake = Faker()
@@ -54,3 +56,14 @@ class TestUserRoute:
 
         assert resp.status_code == status.HTTP_200_OK
         assert resp_data["access_token"] is not None
+
+
+@pytest.mark.anyio
+class TestContactRoute:
+    async def test_create_contact(self, app_client: TestClient, logged_in_user: Tuple[str, User]):
+        """
+
+        """
+        token, user = logged_in_user
+        assert 1 == 1
+
