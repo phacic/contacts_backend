@@ -1,6 +1,6 @@
 from typing import Dict, List, Union
 
-from pydantic import EmailStr, root_validator
+from pydantic import EmailStr, Field, constr, root_validator
 from tortoise.contrib.pydantic import pydantic_model_creator
 
 from app.db.models.contact import (
@@ -10,6 +10,7 @@ from app.db.models.contact import (
     Email,
     Phone,
     SignificantDate,
+    SocialMedia,
 )
 
 ContactTagSchema = pydantic_model_creator(ContactTag, name="ContactTag")
@@ -32,9 +33,14 @@ EmailCreateDefaultSchema = pydantic_model_creator(
     Email, name="EmailCreate", exclude_readonly=True
 )
 
+SocialSchema = pydantic_model_creator(SocialMedia, name="Social")
+SocialCreateSchema = pydantic_model_creator(
+    SocialMedia, name="SocialCreateSchema", exclude_readonly=True
+)
+
 
 class EmailCreateSchema(EmailCreateDefaultSchema):
-    email: EmailStr
+    email_address: EmailStr = constr(max_length=120)
 
 
 SignificantDateSchema = pydantic_model_creator(SignificantDate, name="SignificantDate")
@@ -51,16 +57,23 @@ ContactCreateDefaultSchema = pydantic_model_creator(
 class ContactSchema(ContactDefaultSchema):
     user_id: Union[None, int] = None
     phones: List[PhoneSchema]
+    phones: List[PhoneSchema]
     emails: List[EmailSchema]
     addresses: List[AddressSchema]
     significant_dates: List[SignificantDateSchema]
+    socials: List[SocialSchema]
 
 
 class ContactCreateSchema(ContactCreateDefaultSchema):
+    """
+    ContactCreateDefaultSchema with defined fields and a validator
+    """
+
     phones: Union[None, List[PhoneCreateSchema]] = []
     emails: Union[None, List[EmailCreateSchema]] = []
     addresses: Union[None, List[AddressCreateSchema]] = []
     significant_dates: Union[None, List[SignificantDateCreateSchema]] = []
+    socials: Union[None, List[SocialCreateSchema]] = []
 
     @root_validator
     def check_firstname_phones(cls, values: Dict) -> Dict:

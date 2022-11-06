@@ -51,7 +51,9 @@ async def test_contact_with_details(app_portal: BlockingPortal) -> None:
     emails = app_portal.call(EmailFactory.call_create_batch, *(2, assign_contact))
     address = app_portal.call(AddressFactory.call_create, *(assign_contact,))
     dates = app_portal.call(SignificantDateFactory.call_create, *(assign_contact,))
-    socials = app_portal.call(SocialMediaFactory.call_create_batch, *(3, assign_contact))
+    socials = app_portal.call(
+        SocialMediaFactory.call_create_batch, *(3, assign_contact)
+    )
 
     async def count_contacts():
         return await Contact.all().count()

@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Optional
 
 from tortoise.models import in_transaction
 
-from app.db.models import Address, Contact, Email, Phone, SignificantDate
+from app.db.models import Address, Contact, Email, Phone, SignificantDate, SocialMedia
 from app.db.schema import ContactSchema
 
 
@@ -13,6 +13,8 @@ async def create_new_contact(data: Dict) -> Contact:
     phones = data.pop("phones", [])
     emails = data.pop("emails", [])
     dates = data.pop("significant_dates", [])
+    addresses = data.pop("addresses", [])
+    socials = data.pop("socials", [])
 
     # use transaction to save the pieces
     async with in_transaction():
@@ -23,6 +25,8 @@ async def create_new_contact(data: Dict) -> Contact:
         await create_phones(contact_obj, phones)
         await create_emails(contact_obj, emails)
         await create_sig_dates(contact_obj, dates)
+        await create_addresses(contact_obj, addresses)
+        await create_socials(contact_obj, socials)
 
         return await contact_obj
 
@@ -55,11 +59,18 @@ async def create_addresses(c: Contact, addresses_data: List[Dict]) -> Any:
         return await Address.bulk_create(address_list)
 
 
+async def create_socials(c: Contact, social_data: List[Dict]) -> Any:
+    """"""
+    if social_data:
+        social_list = [SocialMedia(contact=c, **s) for s in social_data]
+        return await SocialMedia.bulk_create(social_list)
+
+
 async def get_user_contacts(user_id: Optional[int] = None) -> List[Contact]:
     """
     contacts created by a user
     """
     qs = Contact.filter(user_id=user_id).prefetch_related(
-        "phones", "emails", "significant_dates", "addresses"
+        "phones", "emails", "significant_dates", "addresses", "socials"
     )
     return await ContactSchema.from_queryset(qs)

@@ -132,8 +132,11 @@ class TModelFactory(base.Factory):
 
 Labels = ["Work", "Home", "Main", "Other"]
 Contact_labels = Labels + ["Mobile"]
-Date_labels = ["Birthday", "Anniversary"]
-social_labels = ["Twitter", "Facebook", "Instagram", "Snapchat", "LinkedIn"]
+Phone_Labels = Contact_labels
+Email_Labels = Labels
+Address_Labels = Labels
+Date_Labels = ["Birthday", "Anniversary"]
+Social_Labels = ["Twitter", "Facebook", "Instagram", "Snapchat", "LinkedIn"]
 
 
 class UserFactory(TModelFactory):
@@ -159,8 +162,6 @@ class ContactFactory(TModelFactory):
     nickname = factory.Faker("name")
     is_favorite = factory.Faker("boolean")
 
-    # >    if value and not value._saved_in_db:
-    # E    AttributeError: 'coroutine' object has no attribute '_saved_in_db'
     user = factory.SubFactory(UserFactory)
 
 
@@ -169,7 +170,7 @@ class PhoneFactory(TModelFactory):
         model = Phone
 
     phone_number = factory.Faker("phone_number")
-    label = factory.Iterator(Contact_labels)
+    label = factory.Iterator(Phone_Labels)
     contact = factory.SubFactory(ContactFactory)
 
 
@@ -178,7 +179,7 @@ class EmailFactory(TModelFactory):
         model = Email
 
     email_address = factory.Faker("email")
-    label = factory.Iterator(Labels)
+    label = factory.Iterator(Email_Labels)
     contact = factory.SubFactory(ContactFactory)
 
 
@@ -187,7 +188,7 @@ class SignificantDateFactory(TModelFactory):
         model = SignificantDate
 
     date = factory.LazyFunction(fake.date)
-    label = factory.Iterator(Date_labels)
+    label = factory.Iterator(Date_Labels)
     contact = factory.SubFactory(ContactFactory)
 
 
@@ -196,7 +197,7 @@ class AddressFactory(TModelFactory):
         model = Address
 
     location = factory.Faker("address")
-    label = factory.Iterator(Labels)
+    label = factory.Iterator(Address_Labels)
     contact = factory.SubFactory(ContactFactory)
 
 
@@ -205,5 +206,5 @@ class SocialMediaFactory(TModelFactory):
         model = SocialMedia
 
     url = factory.Faker("uri")
-    label = factory.Iterator(social_labels)
+    label = factory.Iterator(Social_Labels)
     contact = factory.SubFactory(ContactFactory)

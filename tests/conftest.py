@@ -1,11 +1,20 @@
 import asyncio
-from typing import TYPE_CHECKING, Callable, Coroutine, Generator, List, Type, Union, Tuple
+from typing import (
+    TYPE_CHECKING,
+    Callable,
+    Coroutine,
+    Generator,
+    List,
+    Tuple,
+    Type,
+    Union,
+)
 
 import pytest
 from anyio.from_thread import BlockingPortal
 from faker import Faker
-from fastapi.testclient import TestClient
 from fastapi import Response
+from fastapi.testclient import TestClient
 from fastapi_users.authentication.transport.bearer import BearerResponse
 from pytest_factoryboy import register
 from tortoise.connection import connections
@@ -15,6 +24,7 @@ from tortoise.contrib.test import initializer as tortoise_init
 from app.core.config import settings
 from app.core.tortoise import MODEL_LIST
 from app.db.models import Contact, User
+from app.internal import get_jwt_strategy, jwt_auth_backend
 from app.main import app
 from tests.factory import (
     AddressFactory,
@@ -24,11 +34,6 @@ from tests.factory import (
     SocialMediaFactory,
     UserFactory,
     hashed_passwd,
-)
-
-from app.internal import (
-    get_jwt_strategy,
-    jwt_auth_backend,
 )
 
 if TYPE_CHECKING:
@@ -178,7 +183,8 @@ def logged_in_user(user_factory, app_portal) -> Generator[Tuple[str, User], None
 
     strategy = get_jwt_strategy()
     resp = Response()
-    bearer_resp: BearerResponse = app_portal.call(jwt_auth_backend.login, *(strategy, user, resp))
+    bearer_resp: BearerResponse = app_portal.call(
+        jwt_auth_backend.login, *(strategy, user, resp)
+    )
 
     yield bearer_resp.access_token, user
-

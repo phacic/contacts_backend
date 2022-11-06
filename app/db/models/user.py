@@ -16,3 +16,6 @@ class User(TortoiseBaseUserAccountModel):
 
     class PydanticMeta:
         exclude = ["hashed_password"]
+
+    def __str__(self):
+        return f"{self.full_name}"

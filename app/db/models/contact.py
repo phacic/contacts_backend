@@ -41,6 +41,8 @@ class Contact(BaseModel):
     phones: fields.ReverseRelation["Phone"]
     emails: fields.ReverseRelation["Email"]
     significant_dates: fields.ReverseRelation["SignificantDate"]
+    addresses: fields.ReverseRelation["Address"]
+    socials: fields.ReverseRelation["SocialMedia"]
 
     def __str__(self):
         names = [
