@@ -28,6 +28,7 @@ from app.internal import get_jwt_strategy, jwt_auth_backend
 from app.main import app
 from tests.factory import (
     AddressFactory,
+    ContactFactory,
     EmailFactory,
     PhoneFactory,
     SignificantDateFactory,
@@ -48,6 +49,7 @@ register(EmailFactory)
 register(AddressFactory)
 register(SignificantDateFactory)
 register(SocialMediaFactory)
+register(ContactFactory)
 
 
 @pytest.fixture
@@ -188,3 +190,37 @@ def logged_in_user(user_factory, app_portal) -> Generator[Tuple[str, User], None
     )
 
     yield bearer_resp.access_token, user
+
+
+@pytest.fixture()
+def contact_list(
+    app_portal,
+    phone_factory,
+    email_factory,
+    address_factory,
+    significant_date_factory,
+    social_media_factory,
+    contact_factory,
+    logged_in_user,
+) -> Callable[[int], List[Contact]]:
+    """
+    create a bunch of contacts populated with phone, etc...
+    """
+
+    def create_list(size=1):
+        contacts = []
+        for _ in range(size):
+            _, user = logged_in_user
+            contact = app_portal.call(contact_factory.call_create, *({"user": user},))
+
+            assign_contact = {"contact": contact}
+            app_portal.call(phone_factory.call_create, *(assign_contact,))
+            app_portal.call(email_factory.call_create, *(assign_contact,))
+            app_portal.call(address_factory.call_create, *(assign_contact,))
+            app_portal.call(significant_date_factory.call_create, *(assign_contact,))
+            app_portal.call(social_media_factory.call_create, *(assign_contact,))
+
+            contacts.append(contact)
+        return contacts
+
+    return create_list

@@ -1,12 +1,12 @@
 import json
-from typing import Tuple
+from typing import List, Tuple
 
 import pytest
 from faker import Faker
 from fastapi import status
 from fastapi.testclient import TestClient
 
-from app.db.models import User
+from app.db.models import Contact, User
 from tests.factory import (
     Address_Labels,
     Date_Labels,
@@ -68,7 +68,7 @@ class TestUserRoute:
 class TestContactRoute:
     async def test_create_contact(
         self, app_client: TestClient, logged_in_user: Tuple[str, User]
-    ):
+    ) -> None:
         """ """
         token, user = logged_in_user
         payload = {
@@ -126,3 +126,22 @@ class TestContactRoute:
         assert len(resp_data["addresses"]) == 1
         assert len(resp_data["significant_dates"]) == 1
         assert len(resp_data["socials"]) == 2
+
+    async def test_get_user_contact(
+        self, app_client: TestClient, contact_list, logged_in_user: Tuple[str, User]
+    ) -> None:
+        """
+        test fetching contacts for a user
+        """
+
+        token, user = logged_in_user
+        headers = {"Authorization": f"Bearer {token}"}
+
+        # create contacts
+        cl = contact_list(6)
+
+        resp = app_client.get(url="/api/v1/contact", headers=headers)
+        resp_data = resp.json()
+
+        assert resp.status_code == status.HTTP_200_OK
+        assert len(resp_data) == len(cl)
