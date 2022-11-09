@@ -193,7 +193,7 @@ def logged_in_user(user_factory, app_portal) -> Generator[Tuple[str, User], None
 
 
 @pytest.fixture()
-def contact_list(
+def create_contacts(
     app_portal,
     phone_factory,
     email_factory,

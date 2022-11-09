@@ -1,8 +1,34 @@
 from tortoise import fields
+from tortoise.manager import Manager
+from tortoise.queryset import QuerySet
 
 from app.db.models.base import BaseModel, LabelMixin
 from app.db.models.constant import ModelRelations, StatusOptions
 from app.db.models.user import User
+
+
+class ActiveContactManager(Manager):
+    def __call__(self, *args, **kwargs):
+        return self.get_queryset()
+
+    def get_queryset(self) -> QuerySet["Contact"]:
+        return (
+            super(ActiveContactManager, self)
+            .get_queryset()
+            .filter(status=StatusOptions.Active.value)
+        )
+
+
+class InactiveContactManager(Manager):
+    def __call__(self, *args, **kwargs):
+        return self.get_queryset()
+
+    def get_queryset(self) -> QuerySet["Contact"]:
+        return (
+            super(InactiveContactManager, self)
+            .get_queryset()
+            .filter(status=StatusOptions.Inactive.value)
+        )
 
 
 class Contact(BaseModel):
@@ -44,6 +70,10 @@ class Contact(BaseModel):
     addresses: fields.ReverseRelation["Address"]
     socials: fields.ReverseRelation["SocialMedia"]
 
+    # managers
+    active_objects = ActiveContactManager()
+    inactive_objects = InactiveContactManager()
+
     def __str__(self):
         names = [
             str(self.first_name or "").strip(),
@@ -51,20 +81,6 @@ class Contact(BaseModel):
             str(self.last_name or "").strip(),
         ]
         return f'{" ".join(names)}'.strip()
-
-    async def save(
-        self,
-        using_db=None,
-        update_fields=None,
-        force_create: bool = False,
-        force_update: bool = False,
-    ) -> None:
-        await super(Contact, self).save(
-            using_db=using_db,
-            update_fields=update_fields,
-            force_create=force_create,
-            force_update=force_update,
-        )
 
 
 class ContactTag(BaseModel):

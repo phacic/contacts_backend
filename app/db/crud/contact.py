@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Optional
 from tortoise.models import in_transaction
 
 from app.db.models import Address, Contact, Email, Phone, SignificantDate, SocialMedia
+from app.db.models.constant import StatusOptions
 from app.db.schema import ContactSchema
 
 
@@ -66,11 +67,32 @@ async def create_socials(c: Contact, social_data: List[Dict]) -> Any:
         return await SocialMedia.bulk_create(social_list)
 
 
+async def get_user_contact(user_id: int, contact_id: int) -> Optional[Contact]:
+    """
+    get a contact created by a user
+    """
+    qs = Contact.get_or_none(id=contact_id, user_id=user_id)
+    return await ContactSchema.from_queryset_single(qs)
+
+
 async def get_user_contacts(user_id: Optional[int] = None) -> List[Contact]:
     """
     contacts created by a user
     """
-    qs = Contact.filter(user_id=user_id).prefetch_related(
-        "phones", "emails", "significant_dates", "addresses", "socials"
+    qs = (
+        Contact.active_objects()
+        .filter(user_id=user_id)
+        .prefetch_related(
+            "phones", "emails", "significant_dates", "addresses", "socials"
+        )
     )
     return await ContactSchema.from_queryset(qs)
+
+
+async def deactivate_contact(contact_id: int) -> None:
+    """
+    set a contact status to inactive
+    """
+    Contact.active_objects().filter(id=contact_id).update(
+        status=StatusOptions.Inactive.value
+    )

@@ -1,5 +1,5 @@
 import json
-from typing import List, Tuple
+from typing import Callable, List, Tuple
 
 import pytest
 from faker import Faker
@@ -127,8 +127,11 @@ class TestContactRoute:
         assert len(resp_data["significant_dates"]) == 1
         assert len(resp_data["socials"]) == 2
 
-    async def test_get_user_contact(
-        self, app_client: TestClient, contact_list, logged_in_user: Tuple[str, User]
+    async def test_get_user_contacts(
+        self,
+        app_client: TestClient,
+        create_contacts: Callable[[int], List[Contact]],
+        logged_in_user: Tuple[str, User],
     ) -> None:
         """
         test fetching contacts for a user
@@ -138,10 +141,33 @@ class TestContactRoute:
         headers = {"Authorization": f"Bearer {token}"}
 
         # create contacts
-        cl = contact_list(6)
+        cl = create_contacts(6)
 
         resp = app_client.get(url="/api/v1/contact", headers=headers)
         resp_data = resp.json()
 
         assert resp.status_code == status.HTTP_200_OK
         assert len(resp_data) == len(cl)
+
+    async def test_get_single_user_contact(
+        self,
+        app_client: TestClient,
+        create_contacts: Callable[[int], List[Contact]],
+        logged_in_user: Tuple[str, User],
+    ) -> None:
+        """
+        test fetching a single contact
+        """
+        token, user = logged_in_user
+        headers = {"Authorization": f"Bearer {token}"}
+
+        # create contacts
+        cl = create_contacts(2)
+
+        first_id = cl[0].id
+        url = f"/api/v1/contact/{first_id}"
+        resp = app_client.get(url=url, headers=headers)
+        resp_data = resp.json()
+
+        assert resp.status_code == status.HTTP_200_OK
+        assert resp_data["id"] == first_id
