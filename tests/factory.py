@@ -1,10 +1,12 @@
 import asyncio
 import inspect
+from typing import List
 
 import factory
 from factory import base
 from faker import Faker
 from fastapi_users.password import PasswordHelper
+from tortoise import Model
 
 from app.db.models import (
     Address,
@@ -208,3 +210,12 @@ class SocialMediaFactory(TModelFactory):
     url = factory.Faker("uri")
     label = factory.Iterator(Social_Labels)
     contact = factory.SubFactory(ContactFactory)
+
+
+async def refresh_from_db(instances: List[Model]) -> List[Model]:
+    """
+    call refresh_from_db on model instance
+    """
+    [await i.refresh_from_db() for i in instances]
+    return instances
+

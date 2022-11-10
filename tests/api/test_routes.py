@@ -2,11 +2,13 @@ import json
 from typing import Callable, List, Tuple
 
 import pytest
+from anyio.from_thread import BlockingPortal
 from faker import Faker
 from fastapi import status
 from fastapi.testclient import TestClient
 
 from app.db.models import Contact, User
+from app.db.models.constant import StatusOptions
 from tests.factory import (
     Address_Labels,
     Date_Labels,
@@ -14,6 +16,7 @@ from tests.factory import (
     Phone_Labels,
     Social_Labels,
     passwd,
+    refresh_from_db
 )
 
 fake = Faker()
@@ -171,3 +174,29 @@ class TestContactRoute:
 
         assert resp.status_code == status.HTTP_200_OK
         assert resp_data["id"] == first_id
+
+    async def test_remove_contact(
+        self,
+        app_client: TestClient,
+        app_portal: BlockingPortal,
+        create_contacts: Callable[[int], List[Contact]],
+        logged_in_user: Tuple[str, User]
+    ) -> None:
+
+        token, user = logged_in_user
+        headers = {"Authorization": f"Bearer {token}"}
+
+        # create contacts
+        cl = create_contacts(2)
+
+        # ?q=1&q=2
+        query = "".join(f"q={c.id}&" for c in cl)
+        url = f"/api/v1/contact/?{query}"
+        resp = app_client.delete(url=url, headers=headers)
+
+        assert resp.status_code == status.HTTP_204_NO_CONTENT
+
+        # status should be changed to inactive
+        cl = app_portal.call(refresh_from_db, *(cl,))
+        for c in cl:
+            assert c.status == StatusOptions.Inactive

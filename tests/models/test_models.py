@@ -55,8 +55,8 @@ async def test_contact_with_details(app_portal: BlockingPortal) -> None:
         SocialMediaFactory.call_create_batch, *(3, assign_contact)
     )
 
-    async def count_contacts():
-        return await Contact.all().count()
+    # async def count_contacts():
+    #     return await Contact.all().count()
 
     async def count_phones():
         return await Phone.all().count()

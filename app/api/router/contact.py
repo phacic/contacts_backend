@@ -1,9 +1,11 @@
-from typing import List
+from typing import List, Optional, Union
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Path, Query
 
 from app.api.deps import current_user
-from app.db.crud import create_new_contact, get_user_contact, get_user_contacts
+from app.db.crud import (
+    create_new_contact, get_user_contact, get_user_contacts, deactivate_contact
+)
 from app.db.models import Contact, User
 from app.db.schema import ContactCreateSchema, ContactSchema
 
@@ -11,7 +13,7 @@ router = APIRouter()
 
 
 @router.get(path="/", response_model=List[ContactSchema])
-async def all_contacts(user: User = Depends(current_user)):
+async def all_contacts(user: User = Depends(current_user)) -> Optional[List[Contact]]:
     """
     list contact created by a user
     """
@@ -21,7 +23,10 @@ async def all_contacts(user: User = Depends(current_user)):
 @router.get(
     path="/{contact_id}", response_model=ContactSchema, status_code=status.HTTP_200_OK
 )
-async def get_contact(contact_id: int, user=Depends(current_user)):
+async def get_contact(
+    contact_id: int = Path(..., title="ID of the contact"),
+    user=Depends(current_user)
+) -> Optional[Contact]:
     """
     return a single contact using its id
     """
@@ -42,8 +47,13 @@ async def add_contact(contact: ContactCreateSchema, user: User = Depends(current
 
 
 @router.delete(path="/", status_code=status.HTTP_204_NO_CONTENT)
-async def remove_contact(contact_id: int, user: User = Depends(current_user)):
+async def remove_contact(
+    q: List[int] = Query(..., title="Contact IDs to remove"),
+    user: User = Depends(current_user)
+) -> None:
     """
     remove a contact using its ID. The contact status is set inactive, to
     be permanently removed after 30 days
     """
+    for contact_id in q:
+        await deactivate_contact(user_id=user.id, contact_id=contact_id)

@@ -89,10 +89,10 @@ async def get_user_contacts(user_id: Optional[int] = None) -> List[Contact]:
     return await ContactSchema.from_queryset(qs)
 
 
-async def deactivate_contact(contact_id: int) -> None:
+async def deactivate_contact(user_id: int, contact_id: int) -> None:
     """
     set a contact status to inactive
     """
-    Contact.active_objects().filter(id=contact_id).update(
+    await Contact.active_objects().filter(user_id=user_id, id=contact_id).update(
         status=StatusOptions.Inactive.value
     )
