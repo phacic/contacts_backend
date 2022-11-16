@@ -71,7 +71,7 @@ async def get_user_contact(user_id: int, contact_id: int) -> Optional[Contact]:
     """
     get a contact created by a user
     """
-    qs = Contact.get_or_none(id=contact_id, user_id=user_id)
+    qs = Contact.filter(id=contact_id, user_id=user_id).first()
     return await ContactSchema.from_queryset_single(qs)
 
 

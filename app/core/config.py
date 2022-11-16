@@ -2,6 +2,8 @@ from typing import Any, Dict, Optional
 
 from pydantic import BaseConfig, BaseSettings, PostgresDsn, validator
 
+from app.utils.logger import app_logger
+
 
 class Settings(BaseSettings):
     API: str = "/api"
@@ -23,7 +25,7 @@ class Settings(BaseSettings):
     @validator("DB_URL", pre=True)
     def build_db_url(cls, current_value: Optional[Any], values: Dict) -> Any:
         """build postgres connection string"""
-        print(values)
+        app_logger.info(values)
 
         if isinstance(current_value, str):
             return current_value
