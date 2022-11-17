@@ -29,8 +29,6 @@ async def test_root_route(app_client: TestClient) -> None:
     """
     resp = app_client.get("/")
 
-    print(resp.history)
-
     # should be redirect response with status 307
     assert resp.history[0].status_code == status.HTTP_307_TEMPORARY_REDIRECT
 
@@ -38,7 +36,7 @@ async def test_root_route(app_client: TestClient) -> None:
     assert resp.status_code == status.HTTP_200_OK
 
     # url after redirect should be /docs
-    assert resp.request.path_url == "/docs"
+    assert resp.request.url.path == "/docs"
 
 
 @pytest.mark.anyio
@@ -50,7 +48,7 @@ class TestUserRoute:
             "password": fake.password(),
         }
 
-        resp = app_client.post(url="/auth/register", data=json.dumps(reg_data))
+        resp = app_client.post(url="/auth/register", content=json.dumps(reg_data))
         resp_data = resp.json()
         assert resp.status_code == status.HTTP_201_CREATED
         assert resp_data["status"] == "A"
@@ -114,7 +112,7 @@ class TestContactRoute:
         headers = {"Authorization": f"Bearer {token}"}
 
         resp = app_client.post(
-            url="/api/v1/contact/", data=json.dumps(payload), headers=headers
+            url="/api/v1/contact/", content=json.dumps(payload), headers=headers
         )
         resp_data = resp.json()
 
