@@ -87,3 +87,16 @@ class ContactCreateSchema(ContactCreateDefaultSchema):
             )
 
         return values
+
+
+class ContactUpdateSchema(ContactCreateSchema):
+    """
+    schema for updating a contact
+    """
+
+    @root_validator
+    def check_firstname_phones(cls, values: Dict) -> Dict:
+        """
+        override validator to ignore it
+        """
+        return values

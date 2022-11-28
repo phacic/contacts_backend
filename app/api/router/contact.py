@@ -1,13 +1,14 @@
 from typing import List, Optional, Union
 
-from fastapi import APIRouter, Depends, status, Path, Query
+from fastapi import APIRouter, Depends, status, Path, Query, Body
 
 from app.api.deps import current_user
 from app.db.crud import (
-    create_new_contact, get_user_contact, get_user_contacts, deactivate_contact
+    create_new_contact, get_user_contact, get_user_contacts, deactivate_contact,
+    update_contact
 )
 from app.db.models import Contact, User
-from app.db.schema import ContactCreateSchema, ContactSchema
+from app.db.schema import ContactCreateSchema, ContactSchema, ContactUpdateSchema
 
 router = APIRouter()
 
@@ -36,7 +37,7 @@ async def get_contact(
 @router.post(
     path="/", response_model=ContactSchema, status_code=status.HTTP_201_CREATED
 )
-async def add_contact(contact: ContactCreateSchema, user: User = Depends(current_user)):
+async def add_contact(contact: ContactCreateSchema, user: User = Depends(current_user)) -> ContactSchema:
     """
     create a new contact for a user
     """
@@ -57,3 +58,17 @@ async def remove_contact(
     """
     for contact_id in q:
         await deactivate_contact(user_id=user.id, contact_id=contact_id)
+
+
+@router.patch(path="/{contact_id}", response_model=ContactSchema, status_code=status.HTTP_200_OK)
+async def patch_contact(
+    contact_id: int = Path(..., title="ID of contact to update"),
+    contact: ContactUpdateSchema = Body(...),
+    user: User = Depends(current_user)
+) -> ContactSchema:
+    """
+    update an existing contact
+    """
+    contact_dict = contact.dict(exclude_unset=True)
+    updated_contact = await update_contact(user_id=user.id, contact_id=contact_id, data=contact_dict)
+    return await ContactSchema.from_tortoise_orm(updated_contact)

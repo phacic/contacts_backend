@@ -198,3 +198,45 @@ class TestContactRoute:
         cl = app_portal.call(refresh_from_db, *(cl,))
         for c in cl:
             assert c.status == StatusOptions.Inactive
+
+    async def test_update_contact(
+        self,
+        app_client: TestClient,
+        app_portal: BlockingPortal,
+        create_contacts: Callable[[int], List[Contact]],
+        logged_in_user: Tuple[str, User]
+    ) -> None:
+        """
+        test updating an existing contact
+        """
+
+        token, user = logged_in_user
+        headers = {"Authorization": f"Bearer {token}"}
+
+        # create contacts
+        contact = create_contacts(1)[0]
+
+        new_first_name = "Kofi"
+        new_website = fake.url()
+
+        update_data = {
+            "first_name": new_first_name,
+            "website": new_website
+        }
+
+        url = f"/api/v1/contact/{contact.id}"
+        resp = app_client.patch(url=url, content=json.dumps(update_data), headers=headers)
+        resp_data = resp.json()
+
+        assert resp.status_code == status.HTTP_200_OK
+
+        async def count_phones(c: Contact) -> int:
+            return await c.phones.all().count()
+
+        db_phones_count = app_portal.call(count_phones, *(contact, ))
+
+        assert contact.id == resp_data.get("id")
+        assert new_first_name == resp_data.get("first_name")
+        assert new_website == resp_data.get("website")
+        assert contact.last_name == resp_data.get("last_name")
+        assert db_phones_count == len(resp_data.get("phones"))

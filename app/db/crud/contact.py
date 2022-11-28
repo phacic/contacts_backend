@@ -1,6 +1,6 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union, Type
 
-from tortoise.models import in_transaction
+from tortoise.models import in_transaction, MODEL
 
 from app.db.models import Address, Contact, Email, Phone, SignificantDate, SocialMedia
 from app.db.models.constant import StatusOptions
@@ -22,49 +22,90 @@ async def create_new_contact(data: Dict) -> Contact:
         # create contact
         contact_obj = await Contact.create(**data)
 
-        # the other pieces
-        await create_phones(contact_obj, phones)
-        await create_emails(contact_obj, emails)
-        await create_sig_dates(contact_obj, dates)
-        await create_addresses(contact_obj, addresses)
-        await create_socials(contact_obj, socials)
+        # the components
+        await create_contact_component(contact_obj, phones, Phone)
+        await create_contact_component(contact_obj, emails, Email)
+        await create_contact_component(contact_obj, dates, SignificantDate)
+        await create_contact_component(contact_obj, addresses, Address)
+        await create_contact_component(contact_obj, socials, SocialMedia)
 
         return await contact_obj
 
 
-async def create_phones(c: Contact, phones_data: List[Dict]) -> Any:
-    """ """
-    if phones_data:
-        phone_list = [Phone(contact=c, **p) for p in phones_data]
-        return await Phone.bulk_create(phone_list)
+async def create_contact_component(
+    c: Contact,
+    model_data: List[Dict],
+    model: Type['MODEL']
+) -> Any:
+    """
+    create contact component (phone, email, address, etc)
+
+    Args:
+        c: Contact to associate to
+        model_data: List of Data to create component
+        model: The model for the component. e.g. Phone, Email
+    """
+    assert model is not None
+
+    comps = [model(contact=c, **d) for d in model_data]
+    return await model.bulk_create(comps)
 
 
-async def create_emails(c: Contact, emails_data: List[Dict]) -> Any:
-    """ """
-    if emails_data:
-        email_list = [Email(contact=c, **e) for e in emails_data]
-        return await Email.bulk_create(email_list)
+async def update_contact(user_id: int, contact_id: int, data: Dict) -> Contact:
+    """
+    update an existing contact
+    if a component comes with an id, we are updating if not create a new
+
+    """
+    phones = data.pop("phones", [])
+    emails = data.pop("emails", [])
+    dates = data.pop("significant_dates", [])
+    addresses = data.pop("addresses", [])
+    socials = data.pop("socials", [])
+
+    async with in_transaction():
+        # update contact
+        await Contact.active_objects().filter(user_id=user_id, id=contact_id).update(**data)
+        contact = await Contact.active_objects().filter(user_id=user_id, id=contact_id).first()
+
+        # update components
+        await update_contact_component(c=contact, model_data=phones, model=Phone)
+        await update_contact_component(c=contact, model_data=emails, model=Email)
+        await update_contact_component(c=contact, model_data=dates, model=SignificantDate)
+        await update_contact_component(c=contact, model_data=addresses, model=Address)
+        await update_contact_component(c=contact, model_data=socials, model=SocialMedia)
+
+        return await contact
 
 
-async def create_sig_dates(c: Contact, sig_data: List[Dict]) -> Any:
-    """ """
-    if sig_data:
-        sig_list = [SignificantDate(contact=c, **s) for s in sig_data]
-        return await SignificantDate.bulk_create(sig_list)
+async def update_contact_component(
+    *,
+    c: Contact,
+    model_data: List[Dict],
+    model: Type['MODEL']
+) -> Any:
+    """
+    update phones
 
+    Args:
+        c: Contact to associate to
+        model_data: List of Data to create component
+        model: The model for the component. e.g. Phone, Email
+    """
 
-async def create_addresses(c: Contact, addresses_data: List[Dict]) -> Any:
-    """"""
-    if addresses_data:
-        address_list = [Address(contact=c, **a) for a in addresses_data]
-        return await Address.bulk_create(address_list)
+    to_create = []
+    for d in model_data:
+        # update if id is in data
+        if item_id := d.get("id"):
+            await model.filter(id=item_id).update(**d)
 
+        # create new
+        else:
+            to_create.append(d)
 
-async def create_socials(c: Contact, social_data: List[Dict]) -> Any:
-    """"""
-    if social_data:
-        social_list = [SocialMedia(contact=c, **s) for s in social_data]
-        return await SocialMedia.bulk_create(social_list)
+    # create new ones
+    if to_create:
+        await create_contact_component(c=c, model_data=to_create, model=model)
 
 
 async def get_user_contact(user_id: int, contact_id: int) -> Optional[Contact]:
