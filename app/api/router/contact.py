@@ -67,7 +67,26 @@ async def patch_contact(
     user: User = Depends(current_user)
 ) -> ContactSchema:
     """
-    update an existing contact
+    update an existing contact.
+    Contact component (phone, email, etc) with id and one or more fields will be updated,
+    while those with only id will be deleted. Those without ids will be created16
+    ```{
+        id: 1,
+        first_name: Jonny
+        phones: [
+            {
+                id: 1
+                phone_number: ########
+            }
+            {
+                id: 2
+            },
+            {
+                phone_number: #####
+                label: Mobile
+            }
+        ]
+    }```
     """
     contact_dict = contact.dict(exclude_unset=True)
     updated_contact = await update_contact(user_id=user.id, contact_id=contact_id, data=contact_dict)
