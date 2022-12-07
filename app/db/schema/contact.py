@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Dict, List, Union
 
 from pydantic import EmailStr, Field, constr, root_validator
@@ -23,19 +24,25 @@ AddressCreateSchema = pydantic_model_creator(
     Address, name="AddressCreateSchema", exclude_readonly=True
 )
 
+
+class AddressUpdateSchema(AddressCreateSchema):
+    location: Union[None, str] = None
+
+
 PhoneSchema = pydantic_model_creator(Phone, name="Phone")
 PhoneCreateSchema = pydantic_model_creator(
     Phone, name="PhoneCreate", exclude_readonly=True
 )
 
+
+class PhoneUpdateSchema(PhoneCreateSchema):
+    id: Union[None, int] = None
+    phone_number: Union[None, str] = None
+
+
 EmailSchema = pydantic_model_creator(Email, name="Email")
 EmailCreateDefaultSchema = pydantic_model_creator(
     Email, name="EmailCreate", exclude_readonly=True
-)
-
-SocialSchema = pydantic_model_creator(SocialMedia, name="Social")
-SocialCreateSchema = pydantic_model_creator(
-    SocialMedia, name="SocialCreateSchema", exclude_readonly=True
 )
 
 
@@ -43,10 +50,32 @@ class EmailCreateSchema(EmailCreateDefaultSchema):
     email_address: EmailStr = constr(max_length=120)
 
 
+class EmailUpdateSchema(EmailCreateSchema):
+    id: Union[None, int] = None
+    email_address: Union[EmailStr, constr(max_length=120)] = None
+
+
+SocialSchema = pydantic_model_creator(SocialMedia, name="Social")
+SocialCreateSchema = pydantic_model_creator(
+    SocialMedia, name="SocialCreateSchema", exclude_readonly=True
+)
+
+
+class SocialUpdateSchema(SocialCreateSchema):
+    id: Union[None, int] = None
+    url: Union[None, str] = None
+
+
 SignificantDateSchema = pydantic_model_creator(SignificantDate, name="SignificantDate")
 SignificantDateCreateSchema = pydantic_model_creator(
     SignificantDate, name="SignificantDateCreateSchema", exclude_readonly=True
 )
+
+
+class SignificantDateUpdateSchema(SignificantDateCreateSchema):
+    id: Union[None, int] = None
+    date: Union[None, datetime] = None
+
 
 ContactDefaultSchema = pydantic_model_creator(Contact, name="Contact")
 ContactCreateDefaultSchema = pydantic_model_creator(
@@ -93,6 +122,11 @@ class ContactUpdateSchema(ContactCreateSchema):
     """
     schema for updating a contact
     """
+    phones: Union[None, List[PhoneUpdateSchema]] = []
+    emails: Union[None, List[EmailUpdateSchema]] = []
+    addresses: Union[None, List[AddressUpdateSchema]] = []
+    significant_dates: Union[None, List[SignificantDateUpdateSchema]] = []
+    socials: Union[None, List[SocialUpdateSchema]] = []
 
     @root_validator
     def check_firstname_phones(cls, values: Dict) -> Dict:

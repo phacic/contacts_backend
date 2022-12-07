@@ -252,7 +252,11 @@ class TestContactRoute:
                     "url": fake.url(),
                     "label": fake.random_choices(Social_Labels, 1)[0]
                 },
-
+            ],
+            "addresses": [
+                {
+                    "location": fake.text()
+                }
             ]
         }
 

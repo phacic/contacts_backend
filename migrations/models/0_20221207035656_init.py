@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS "contact" (
 );
 COMMENT ON TABLE "contact" IS 'contact model for a person contact';
 CREATE TABLE IF NOT EXISTS "address" (
-    "label" VARCHAR(25) NOT NULL,
+    "label" VARCHAR(25),
     "id" SERIAL NOT NULL PRIMARY KEY,
     "created_at" TIMESTAMPTZ NOT NULL  DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL  DEFAULT CURRENT_TIMESTAMP,
@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS "address" (
 );
 COMMENT ON TABLE "address" IS 'address associated with Contact';
 CREATE TABLE IF NOT EXISTS "email" (
-    "label" VARCHAR(25) NOT NULL,
+    "label" VARCHAR(25),
     "id" SERIAL NOT NULL PRIMARY KEY,
     "created_at" TIMESTAMPTZ NOT NULL  DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL  DEFAULT CURRENT_TIMESTAMP,
@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS "email" (
 );
 COMMENT ON TABLE "email" IS 'model for email addresses associated with a contact';
 CREATE TABLE IF NOT EXISTS "phone" (
-    "label" VARCHAR(25) NOT NULL,
+    "label" VARCHAR(25),
     "id" SERIAL NOT NULL PRIMARY KEY,
     "created_at" TIMESTAMPTZ NOT NULL  DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL  DEFAULT CURRENT_TIMESTAMP,
@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS "phone" (
 );
 COMMENT ON TABLE "phone" IS 'model for phone numbers associated with a contact';
 CREATE TABLE IF NOT EXISTS "significantdate" (
-    "label" VARCHAR(25) NOT NULL,
+    "label" VARCHAR(25),
     "id" SERIAL NOT NULL PRIMARY KEY,
     "created_at" TIMESTAMPTZ NOT NULL  DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL  DEFAULT CURRENT_TIMESTAMP,
@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS "significantdate" (
 );
 COMMENT ON TABLE "significantdate" IS 'birthday, anniversary, e.t.c, associated with a contact';
 CREATE TABLE IF NOT EXISTS "socialmedia" (
-    "label" VARCHAR(25) NOT NULL,
+    "label" VARCHAR(25),
     "id" SERIAL NOT NULL PRIMARY KEY,
     "created_at" TIMESTAMPTZ NOT NULL  DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL  DEFAULT CURRENT_TIMESTAMP,
