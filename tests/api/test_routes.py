@@ -230,30 +230,36 @@ class TestContactRoute:
             "first_name": new_first_name,
             "website": new_website,
             "phones": [
+                # this will create new phone
                 {
                     "phone_number": fake.phone_number(),
                     "label": fake.random_choices(Phone_Labels, 1)[0],
                 },
+                # update existing phone
                 {
                     "id": contact_data['phones'][0]["id"],
                     "phone_number": new_phone_number
                 }
             ],
             "emails": [
+                # delete existing email
                 {
                     "id": contact_data['emails'][0]['id']
                 }
             ],
             "socials": [
+                # delete social
                 {
                     "id": contact_data['socials'][0]['id']
                 },
+                # create a new one
                 {
                     "url": fake.url(),
                     "label": fake.random_choices(Social_Labels, 1)[0]
                 },
             ],
             "addresses": [
+                # create a new
                 {
                     "location": fake.text()
                 }
@@ -275,4 +281,9 @@ class TestContactRoute:
         assert new_first_name == resp_data.get("first_name")
         assert new_website == resp_data.get("website")
         assert contact.last_name == resp_data.get("last_name")
+
+        # phones count should be 2
         assert db_phones_count == len(resp_data.get("phones"))
+
+        # emails should be 0. it got deleted
+        assert len(resp_data.get("emails")) == 0

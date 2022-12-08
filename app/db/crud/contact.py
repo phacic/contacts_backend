@@ -85,7 +85,10 @@ async def update_contact_component(
     model: Type['MODEL']
 ) -> Any:
     """
-    update phones
+    update, delete, create new component.
+    When the incoming data has an id and nothing else, it gets deleted.
+    If an id is present and has more data, the component gets updated.
+    if no id but has data, a new one is created
 
     Args:
         c: Contact to associate to
@@ -95,9 +98,15 @@ async def update_contact_component(
 
     to_create = []
     for d in model_data:
-        # update if id is in data
-        if item_id := d.get("id"):
-            await model.filter(id=item_id).update(**d)
+        # when id is present
+        #   and it has more data, update
+        #   if not delete
+        # when id is absent but has more data, create new
+        if item_id := d.pop("id", None):
+            if len(d) > 0:
+                await model.filter(id=item_id).update(**d)
+            else:
+                await model.filter(id=item_id).delete()
 
         # create new
         else:
