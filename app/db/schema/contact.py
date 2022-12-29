@@ -122,6 +122,7 @@ class ContactUpdateSchema(ContactCreateSchema):
     """
     schema for updating a contact
     """
+
     phones: Union[None, List[PhoneUpdateSchema]] = []
     emails: Union[None, List[EmailUpdateSchema]] = []
     addresses: Union[None, List[AddressUpdateSchema]] = []

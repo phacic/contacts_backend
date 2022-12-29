@@ -1,6 +1,6 @@
-from typing import Any, Dict, List, Optional, Union, Type
+from typing import Any, Dict, List, Optional, Type, Union
 
-from tortoise.models import in_transaction, MODEL
+from tortoise.models import MODEL, in_transaction
 
 from app.db.models import Address, Contact, Email, Phone, SignificantDate, SocialMedia
 from app.db.models.constant import StatusOptions
@@ -33,9 +33,7 @@ async def create_new_contact(data: Dict) -> Contact:
 
 
 async def create_contact_component(
-    c: Contact,
-    model_data: List[Dict],
-    model: Type['MODEL']
+    c: Contact, model_data: List[Dict], model: Type["MODEL"]
 ) -> Any:
     """
     create contact component (phone, email, address, etc)
@@ -51,12 +49,21 @@ async def create_contact_component(
     return await model.bulk_create(comps)
 
 
-async def update_contact(user_id: int, contact_id: int, data: Dict) -> Contact:
+async def update_contact(user_id: int, contact_id: int, data: Dict) -> Union[None, Contact]:
     """
     update an existing contact
     if a component comes with an id, we are updating if not create a new
 
     """
+    contact = (
+        await Contact.active_objects()
+        .filter(user_id=user_id, id=contact_id)
+        .first()
+    )
+
+    if not contact:
+        return None
+
     phones = data.pop("phones", [])
     emails = data.pop("emails", [])
     dates = data.pop("significant_dates", [])
@@ -65,13 +72,17 @@ async def update_contact(user_id: int, contact_id: int, data: Dict) -> Contact:
 
     async with in_transaction():
         # update contact
-        await Contact.active_objects().filter(user_id=user_id, id=contact_id).update(**data)
-        contact = await Contact.active_objects().filter(user_id=user_id, id=contact_id).first()
+        if data:
+            await Contact.active_objects().filter(user_id=user_id, id=contact_id).update(
+                **data
+            )
 
         # update components
         await update_contact_component(c=contact, model_data=phones, model=Phone)
         await update_contact_component(c=contact, model_data=emails, model=Email)
-        await update_contact_component(c=contact, model_data=dates, model=SignificantDate)
+        await update_contact_component(
+            c=contact, model_data=dates, model=SignificantDate
+        )
         await update_contact_component(c=contact, model_data=addresses, model=Address)
         await update_contact_component(c=contact, model_data=socials, model=SocialMedia)
 
@@ -79,10 +90,7 @@ async def update_contact(user_id: int, contact_id: int, data: Dict) -> Contact:
 
 
 async def update_contact_component(
-    *,
-    c: Contact,
-    model_data: List[Dict],
-    model: Type['MODEL']
+    *, c: Contact, model_data: List[Dict], model: Type["MODEL"]
 ) -> Any:
     """
     update, delete, create new component.

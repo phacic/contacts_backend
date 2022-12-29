@@ -17,7 +17,7 @@ from tests.factory import (
     Phone_Labels,
     Social_Labels,
     passwd,
-    refresh_from_db
+    refresh_from_db,
 )
 
 fake = Faker()
@@ -179,7 +179,7 @@ class TestContactRoute:
         app_client: TestClient,
         app_portal: BlockingPortal,
         create_contacts: Callable[[int], List[Contact]],
-        logged_in_user: Tuple[str, User]
+        logged_in_user: Tuple[str, User],
     ) -> None:
         token, user = logged_in_user
         headers = {"Authorization": f"Bearer {token}"}
@@ -204,7 +204,7 @@ class TestContactRoute:
         app_client: TestClient,
         app_portal: BlockingPortal,
         create_contacts: Callable[[int], List[Contact]],
-        logged_in_user: Tuple[str, User]
+        logged_in_user: Tuple[str, User],
     ) -> None:
         """
         test updating an existing contact
@@ -237,37 +237,30 @@ class TestContactRoute:
                 },
                 # update existing phone
                 {
-                    "id": contact_data['phones'][0]["id"],
-                    "phone_number": new_phone_number
-                }
+                    "id": contact_data["phones"][0]["id"],
+                    "phone_number": new_phone_number,
+                },
             ],
             "emails": [
                 # delete existing email
-                {
-                    "id": contact_data['emails'][0]['id']
-                }
+                {"id": contact_data["emails"][0]["id"]}
             ],
             "socials": [
                 # delete social
-                {
-                    "id": contact_data['socials'][0]['id']
-                },
+                {"id": contact_data["socials"][0]["id"]},
                 # create a new one
-                {
-                    "url": fake.url(),
-                    "label": fake.random_choices(Social_Labels, 1)[0]
-                },
+                {"url": fake.url(), "label": fake.random_choices(Social_Labels, 1)[0]},
             ],
             "addresses": [
                 # create a new
-                {
-                    "location": fake.text()
-                }
-            ]
+                {"location": fake.text()}
+            ],
         }
 
         url = f"/api/v1/contact/{contact.id}"
-        resp = app_client.patch(url=url, content=json.dumps(update_data), headers=headers)
+        resp = app_client.patch(
+            url=url, content=json.dumps(update_data), headers=headers
+        )
         resp_data = resp.json()
 
         assert resp.status_code == status.HTTP_200_OK

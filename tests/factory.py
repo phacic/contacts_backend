@@ -170,4 +170,3 @@ async def refresh_from_db(instances: List[Model]) -> List[Model]:
     """
     [await i.refresh_from_db() for i in instances]
     return instances
-
