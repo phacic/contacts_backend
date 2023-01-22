@@ -73,9 +73,7 @@ async def update_contact(user_id: int, contact_id: int, data: Dict) -> Union[Non
     async with in_transaction():
         # update contact
         if data:
-            await Contact.active_objects().filter(user_id=user_id, id=contact_id).update(
-                **data
-            )
+            await contact.update_from_dict(data=data)
 
         # update components
         await update_contact_component(c=contact, model_data=phones, model=Phone)
@@ -106,7 +104,7 @@ async def update_contact_component(
 
     to_create = []
     for d in model_data:
-        # when id is present
+        # when id is present,
         #   and it has more data, update
         #   if not delete
         # when id is absent but has more data, create new

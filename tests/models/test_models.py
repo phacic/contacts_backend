@@ -55,16 +55,10 @@ async def test_contact_with_details(app_portal: BlockingPortal) -> None:
         SocialMediaFactory.call_create_batch, *(3, assign_contact)
     )
 
-    # async def count_contacts():
-    #     return await Contact.all().count()
-
     async def count_phones():
         return await Phone.all().count()
 
-    # contact_count = app_portal.call(count_contacts)
     phones_count = app_portal.call(count_phones)
-
-    # assert contact_count == 1
     assert phones_count == 2
 
     # phone should be related to contact
@@ -80,3 +74,6 @@ async def test_contact_with_details(app_portal: BlockingPortal) -> None:
 
     for s in socials:
         assert s.contact_id == contact.id
+
+    # so __str__ are called
+    assert str(contact) == f"{contact.first_name} {contact.middle_name} {contact.last_name}" 

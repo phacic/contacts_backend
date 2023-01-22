@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Dict, List, Union
 
-from pydantic import EmailStr, Field, constr, root_validator
+from pydantic import EmailStr, constr, root_validator
 from tortoise.contrib.pydantic import pydantic_model_creator
 
 from app.db.models.contact import (
